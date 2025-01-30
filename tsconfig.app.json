@@ -1,26 +1,46 @@
 {
+  // Настраивает параметры компиляции.
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx",
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "outDir": "./build/", // Поместить все скомпилированные файлы в данную папку, согласно их вложенности в исходниках. Если задана опция "outFile", то опция "outDir" будет проигнорирована.
+    "noImplicitAny": true, // Включить ли все строги проверки типов сразу: noImplicitAny, noImplicitThis, alwaysStrict, strictNullChecks, strictFunctionTypes, strictPropertyInitialization?
+    "module": "ESNext", // Определяет тип импорта кода в итоговом файле, прописанном в "outFile". Необходимо задавать при использовании опции "outFile".
+    "target": "es6", // Тип кода создаваемого итогового файла.
+    // Тип кода создаваемого итогового файла.
+    "jsx": "react-jsx", // Включать ли поддержку ".tsx" файлов?
+    "skipLibCheck": true, // Не проверять типы, заданные во всех файлах описания типов (*.d.ts)?
+    "allowJs": true, // Разрешать компилировать файлы с JavaScript-кодом?
+    "strict": true, // Включить ли все строги проверки типов сразу: noImplicitAny, noImplicitThis, alwaysStrict, strictNullChecks, strictFunctionTypes, strictPropertyInitialization?
+    "moduleResolution": "node", // Определить способ поиска модулей в папках: как в Node.js или классический, как в TypeScript 1.5 и ниже.
+    "baseUrl": ".", // Путь до базовой папки для поиска не относительных путей до файлов.
+    "paths": {
+      // Укажите сопоставление маршрутов для вычисления по сравнению с параметром baseUrl.
+      "@/*": ["src/*"],
+      "@public/*": ["public/*"]
+    },
+    "esModuleInterop": true, // Создать хелперы __importStar и __importDefault для обеспечения совместимости с экосистемой Babel и включить allowSyntheticDefaultImports для совместимости с системой типов.
+    "allowSyntheticDefaultImports": true, // Разрешить импортировать модули не имеющие внутри себя "import default"?
+    "forceConsistentCasingInFileNames": true, // Запретить несогласованные ссылки на один и тот же файл?
+    "noFallthroughCasesInSwitch": true, // Сообщить об ошибке в случае обнаружения проваливания в конструкции switch-case?
+    "resolveJsonModule": true, // Импортирует файлы JSON непосредственно в TypeScript код
+    "noEmit": false, // Не создавать итоговый файл.
+    "removeComments": true, // Удалить все комментарии из итогового файла.
+    "downlevelIteration": true, // Обеспечьте полную поддержку итераций для for - in, ..., деструктуризации при настройке на ES5 или ES3?
+    //    "declaration": true, // Включить генерацию файлов .d.ts
+    //    "declarationDir": "../build-client/types", // Директория для файлов .d.ts
   },
-  "include": ["src"]
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  },
+  // Секция "include" позволяет скомпилировать все файлы, находящиеся в заданных папках.
+  "include": [
+    "src",
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  // Исключает ненужные папки из сборки
+  "exclude": [
+    "./node_modules"
+  ]
 }
