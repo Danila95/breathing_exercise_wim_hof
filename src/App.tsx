@@ -1,5 +1,4 @@
 import {useEffect, useRef, useState} from 'react'
-import './App.css'
 import { Button, Slider } from 'antd'
 import {PlayCircleOutlined, PauseOutlined, SettingOutlined} from '@ant-design/icons'
 import { SettingModal } from './components/SettingModal'

@@ -2,14 +2,12 @@ import {Button, Drawer, Flex, Space} from 'antd'
 import { Typography } from 'antd'
 
 interface ISettingModal {
-	className?: string
 	onClose: () => void,
 	isOpenModal: boolean
 }
 
 export const SettingModal = (props: ISettingModal) => {
 	const {
-		className,
 		onClose,
 		isOpenModal
 	} = props
