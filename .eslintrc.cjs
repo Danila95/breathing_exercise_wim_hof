@@ -9,7 +9,6 @@ module.exports = {
 		'eslint:recommended',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:react/recommended',
-		'plugin:i18next/recommended',
 		'airbnb',
 		'plugin:import/errors',
 		'plugin:import/warnings',
@@ -30,10 +29,7 @@ module.exports = {
 			}
 		},
 		{
-			files: ['**/src/**/*.test.{ts,tsx}'],
-			rules: {
-				'i18next/no-literal-string': 'off'
-			}
+			files: ['**/src/**/*.test.{ts,tsx}']
 		}
 	],
 	parser: '@typescript-eslint/parser',
@@ -45,7 +41,6 @@ module.exports = {
 		'prettier',
 		'@typescript-eslint',
 		'react',
-		'i18next',
 		'react-hooks'
 	],
 	rules: {
@@ -62,10 +57,6 @@ module.exports = {
 		'no-unused-vars': 'off',
 		'@typescript-eslint/no-unused-vars': 'off',
 		'@typescript-eslint/no-explicit-any': 'off',
-		'i18next/no-literal-string': [
-			'error',
-			{ markupOnly: true, ignoreAttribute: ['to'] }
-		],
 		'react/jsx-uses-react': 'off',
 		'react/jsx-props-no-spreading': 'off',
 		'react/require-default-props': 'off',
