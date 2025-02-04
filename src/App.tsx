@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, Slider } from 'antd'
+import { Button } from 'antd'
 import {
 	PlayCircleOutlined,
 	PauseOutlined,
@@ -9,7 +9,7 @@ import { SettingModal } from './components/SettingModal'
 
 function App() {
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
-	const [speedAudio, setSpeedAudio] = useState(0.8) // Скорость дыхания
+	const [speedAudio, setSpeedAudio] = useState(0.9) // Скорость дыхания
 	const audioRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const [countBreathes, setCountBreathes] = useState(0)
 	const [isOpenModal, setIsOpenModal] = useState(false)
@@ -86,39 +86,48 @@ function App() {
 		}
 	}
 
-	const handleSpeedAudio = (newValue: number) => {
-		setSpeedAudio(newValue)
-	}
-
 	return (
 		<div style={{ margin: '50px' }}>
-			<Button
-				type='link'
-				onClick={() => openSettingModal()}
-				icon={<SettingOutlined />}
-			>
-				Настройки
-			</Button>
+			{!isPlaying && (
+				<Button
+					type='link'
+					onClick={() => openSettingModal()}
+					icon={<SettingOutlined />}
+				>
+					Настройки
+				</Button>
+			)}
 			<SettingModal
 				isOpenModal={isOpenModal}
 				onClose={() => closeSettingModal()}
+				speedAudio={speedAudio}
+				setSpeedAudio={setSpeedAudio}
 			/>
-			<Button
-				onClick={handleStartBreathe}
-				icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
-				size='large'
-				iconPosition='end'
+			<div
+				style={{
+					margin: '50px',
+					padding: '50px',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center'
+				}}
 			>
-				{isPlaying ? 'Stop' : 'Play'}
-			</Button>
-			<div>Количество вдохов/выдохов: {countBreathes}</div>
-			<Slider
-				min={0.8}
-				max={2}
-				step={0.1}
-				onChange={handleSpeedAudio}
-				value={speedAudio}
-			/>
+				<Button
+					onClick={handleStartBreathe}
+					icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
+					size='large'
+					iconPosition='end'
+				>
+					{isPlaying ? 'Stop' : 'Play'}
+				</Button>
+				<div
+					style={{
+						marginTop: '50px'
+					}}
+				>
+					Количество вдохов/выдохов: {countBreathes}
+				</div>
+			</div>
 
 			{/* Аудиоплеер */}
 			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
