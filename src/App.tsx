@@ -9,11 +9,23 @@ import { SettingModal } from './components/SettingModal'
 
 function App() {
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
-	const [speedAudio, setSpeedAudio] = useState(0.9) // Скорость дыхания
+	const [speedAudio, setSpeedAudio] = useState(0.8) // Скорость дыхания
 	const audioRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const [countBreathes, setCountBreathes] = useState(0)
-	const [isOpenModal, setIsOpenModal] = useState(false)
-	// const [lastCount, setLastCount] = useState(0);
+	const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
+	const [cicleBreath, setCicleBreath] = useState<Array<number>>([])
+	const [oneTimeBreathHolding, setOneTimeBreathHolding] = useState<
+		number | null
+	>(null)
+	const [twoTimeBreathHolding, setTwoTimeBreathHolding] = useState<
+		number | null
+	>(null)
+	const [threeTimeBreathHolding, setThreeTimeBreathHolding] = useState<
+		number | null
+	>(null)
+	const [fourTimeBreathHolding, setFourTimeBreathHolding] = useState<
+		number | null
+	>(null)
 
 	const openSettingModal = () => {
 		setIsOpenModal(true)
@@ -102,6 +114,11 @@ function App() {
 				onClose={() => closeSettingModal()}
 				speedAudio={speedAudio}
 				setSpeedAudio={setSpeedAudio}
+				setCicleBreath={setCicleBreath}
+				setOneTimeBreathHolding={setOneTimeBreathHolding}
+				setTwoTimeBreathHolding={setTwoTimeBreathHolding}
+				setThreeTimeBreathHolding={setThreeTimeBreathHolding}
+				setFourTimeBreathHolding={setFourTimeBreathHolding}
 			/>
 			<div
 				style={{

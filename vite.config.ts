@@ -1,9 +1,20 @@
 import path from 'path'
+import react from '@vitejs/plugin-react'
+import svgr from 'vite-plugin-svgr'
+import { createHtmlPlugin } from 'vite-plugin-html'
 import { defineConfig } from 'vite'
 
 export default defineConfig(() => {
 	return {
-		plugins: [],
+		plugins: [
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-expect-error
+			svgr({ exportAsDefault: true, include: '**/*.svg' }),
+			react(),
+			createHtmlPlugin({
+				minify: true
+			})
+		],
 		resolve: {
 			alias: [
 				{ find: '@', replacement: path.resolve(__dirname, './src') },
@@ -46,7 +57,8 @@ export default defineConfig(() => {
 		},
 		server: {
 			port: 3000,
-			open: true
+			open: true,
+			hmr: true
 		},
 		define: {}
 	}
