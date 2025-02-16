@@ -9,7 +9,9 @@ import { SettingModal } from './components/SettingModal'
 
 function App() {
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
-	const [speedAudio, setSpeedAudio] = useState(0.8) // Скорость дыхания
+	const [speedAudio, setSpeedAudio] = useState(localStorage.getItem('speedBreath')
+		? Number(localStorage.getItem('speedBreath'))
+		: 0.8) // Скорость дыхания
 	const audioRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const [countBreathes, setCountBreathes] = useState(0)
 	const [isOpenModal, setIsOpenModal] = useState<boolean>(false)

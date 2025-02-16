@@ -38,10 +38,12 @@ export const SettingModal = (props: ISettingModal) => {
 
 	const handleSpeedAudio = (newValue: any) => {
 		setSpeedAudio(newValue)
+		localStorage.setItem('speedBreath', newValue)
 	}
 
 	const handleCicleBreath = (value: string) => {
 		setCicleBreath(value.split('-').map(Number))
+		localStorage.setItem('cicleBreath', value)
 	}
 
 	const range = (start: number, end: number) => {
@@ -110,6 +112,15 @@ export const SettingModal = (props: ISettingModal) => {
 		return '40-40-40-40'
 	}
 
+	// const handlerSpeedDefaultAudio = (name: string) => {
+	// 	if (localStorage.getItem(name)) {
+	// 		console.log(localStorage.getItem(name))
+	//
+	// 		return setSpeedAudio(Number(localStorage.getItem(name)))
+	// 	}
+	// 	return 0.8
+	// }
+
 	return (
 		<Drawer
 			className=''
@@ -134,6 +145,7 @@ export const SettingModal = (props: ISettingModal) => {
 				>
 					<Typography.Text type='secondary'>Скорость дыхания</Typography.Text>
 					<Slider
+						defaultValue={speedAudio ? speedAudio : 0.8}
 						min={0.7}
 						max={2}
 						step={0.1}
