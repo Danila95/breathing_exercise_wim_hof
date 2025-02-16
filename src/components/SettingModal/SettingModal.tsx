@@ -9,13 +9,14 @@ import {
 	Typography
 } from 'antd'
 import dayjs from 'dayjs'
+import {createLogger} from "vite";
 
 interface ISettingModal {
 	onClose: () => void
 	isOpenModal: boolean
 	speedAudio: number
 	setSpeedAudio: (value: number) => void
-	setCicleBreath: React.Dispatch<React.SetStateAction<number[]>>
+	setCicleBreath: React.Dispatch<React.SetStateAction<Array<number> | null>>
 	setOneTimeBreathHolding: React.Dispatch<React.SetStateAction<number | null>>
 	setTwoTimeBreathHolding: React.Dispatch<React.SetStateAction<number | null>>
 	setThreeTimeBreathHolding: React.Dispatch<React.SetStateAction<number | null>>
@@ -39,9 +40,8 @@ export const SettingModal = (props: ISettingModal) => {
 		setSpeedAudio(newValue)
 	}
 
-	const handleChange = (value: string) => {
-		localStorage.setItem('cicleBreath', value)
-		// setCicleBreath(value)
+	const handleCicleBreath = (value: string) => {
+		setCicleBreath(value.split('-').map(Number))
 	}
 
 	const range = (start: number, end: number) => {
@@ -64,33 +64,21 @@ export const SettingModal = (props: ISettingModal) => {
 			const miliseconds = minutes + seconds
 
 			if (name === 'oneTimeBreathHolding') {
-				// if (!localStorage.getItem('oneTimeBreathHolding')) {
-				// 	localStorage.setItem('oneTimeBreathHolding', miliseconds.toString())
-				// }
 				localStorage.setItem('oneTimeBreathHolding', miliseconds.toString())
 				setOneTimeBreathHolding(miliseconds)
 			}
 
 			if (name === 'twoTimeBreathHolding') {
-				// if (!localStorage.getItem('twoTimeBreathHolding')) {
-				// 	localStorage.setItem('twoTimeBreathHolding', miliseconds.toString())
-				// }
 				localStorage.setItem('twoTimeBreathHolding', miliseconds.toString())
 				setTwoTimeBreathHolding(miliseconds)
 			}
 
 			if (name === 'threeTimeBreathHolding') {
-				// if (!localStorage.getItem('threeTimeBreathHolding')) {
-				// 	localStorage.setItem('threeTimeBreathHolding', miliseconds.toString())
-				// }
 				localStorage.setItem('threeTimeBreathHolding', miliseconds.toString())
 				setThreeTimeBreathHolding(miliseconds)
 			}
 
 			if (name === 'fourTimeBreathHolding') {
-				// if (!localStorage.getItem('fourTimeBreathHolding')) {
-				// 	localStorage.setItem('fourTimeBreathHolding', miliseconds.toString())
-				// }
 				localStorage.setItem('fourTimeBreathHolding', miliseconds.toString())
 				setFourTimeBreathHolding(miliseconds)
 			}
@@ -98,15 +86,28 @@ export const SettingModal = (props: ISettingModal) => {
 	}
 
 	const handlerDefaultValueDatePicker = (name: string) => {
-		if (localStorage.getItem('oneTimeBreathHolding')) {
-			const time = localStorage.getItem('oneTimeBreathHolding')
+		if (localStorage.getItem(name)) {
+			const time = localStorage.getItem(name)
 			const milliseconds = parseInt(String(time), 10) // Преобразуем строку в число
-			// const duration = dayjs.duration(milliseconds) // Создаем duration из миллисекунд
-			// const formattedTime = dayjs.utc(duration.asMilliseconds()).format('mm:ss') // Форматируем в мм:сс
+			const minutes = milliseconds / 1000 / 60 >= 1 ? Math.floor(milliseconds / 1000 / 60) : 0
+			const seconds = milliseconds / 1000 % 60
 
-			return dayjs('00:10', 'mm:ss')
+			// Преобразуем время в формат dayjs
+			const FormattedMinutes = minutes < 10 && minutes >= 0 ? `0${minutes}` : minutes
+			const FormattedSeconds = seconds < 10 && seconds >= 0 ? `0${seconds}` : seconds
+
+			return dayjs(`${FormattedMinutes}:${FormattedSeconds}`, 'mm:ss')
 		}
-		return dayjs('00:10', 'mm:ss')
+
+		return dayjs('00:30', 'mm:ss')
+	}
+
+	const handlerDefaultCicleBreath = (name: string) => {
+		if (localStorage.getItem(name)) {
+			return localStorage.getItem(name)
+		}
+
+		return '40-40-40-40'
 	}
 
 	return (
@@ -154,8 +155,8 @@ export const SettingModal = (props: ISettingModal) => {
 						</Typography.Text>
 					</Space>
 					<Select
-						defaultValue='40-40-40-40'
-						onChange={handleChange}
+						defaultValue={handlerDefaultCicleBreath('cicleBreath')}
+						onChange={handleCicleBreath}
 						options={[
 							{
 								value: '30-30-30',

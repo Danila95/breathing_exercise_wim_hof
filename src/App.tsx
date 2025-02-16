@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Button } from 'antd'
 import {
 	PlayCircleOutlined,
@@ -13,7 +13,10 @@ function App() {
 	const audioRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const [countBreathes, setCountBreathes] = useState(0)
 	const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
-	const [cicleBreath, setCicleBreath] = useState<Array<number>>([])
+	const [cicleBreath, setCicleBreath] = useState<Array<number> | null>(	localStorage.getItem('cicleBreath')
+		// @ts-ignore
+		? localStorage.getItem('cicleBreath').split('-').map(Number)
+		: null)
 	const [oneTimeBreathHolding, setOneTimeBreathHolding] = useState<
 		number | null
 	>(() =>
@@ -115,12 +118,12 @@ function App() {
 	}
 
 	return (
-		<div style={{ margin: '50px' }}>
+		<div style={{margin: '50px'}}>
 			{!isPlaying && (
 				<Button
 					type='link'
 					onClick={() => openSettingModal()}
-					icon={<SettingOutlined />}
+					icon={<SettingOutlined/>}
 				>
 					Настройки
 				</Button>
@@ -147,7 +150,7 @@ function App() {
 			>
 				<Button
 					onClick={handleStartBreathe}
-					icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
+					icon={isPlaying ? <PauseOutlined/> : <PlayCircleOutlined/>}
 					size='large'
 					iconPosition='end'
 				>
