@@ -97,6 +97,18 @@ export const SettingModal = (props: ISettingModal) => {
 		}
 	}
 
+	const handlerDefaultValueDatePicker = (name: string) => {
+		if (localStorage.getItem('oneTimeBreathHolding')) {
+			const time = localStorage.getItem('oneTimeBreathHolding')
+			const milliseconds = parseInt(String(time), 10) // Преобразуем строку в число
+			// const duration = dayjs.duration(milliseconds) // Создаем duration из миллисекунд
+			// const formattedTime = dayjs.utc(duration.asMilliseconds()).format('mm:ss') // Форматируем в мм:сс
+
+			return dayjs('00:10', 'mm:ss')
+		}
+		return dayjs('00:10', 'mm:ss')
+	}
+
 	return (
 		<Drawer
 			className=''
@@ -177,7 +189,7 @@ export const SettingModal = (props: ISettingModal) => {
 						picker='time'
 						format='mm:ss'
 						showNow={false}
-						defaultValue={dayjs('00:30', 'mm:ss')}
+						defaultValue={handlerDefaultValueDatePicker('oneTimeBreathHolding')}
 						disabledTime={disabledRangeTime} // Отключаем выбор минут больше 10
 						onChange={time =>
 							handleTimeChangeBreathHolding(time, 'oneTimeBreathHolding')
@@ -201,7 +213,7 @@ export const SettingModal = (props: ISettingModal) => {
 						picker='time'
 						format='mm:ss'
 						showNow={false}
-						defaultValue={dayjs('00:30', 'mm:ss')}
+						defaultValue={handlerDefaultValueDatePicker('twoTimeBreathHolding')}
 						disabledTime={disabledRangeTime} // Отключаем выбор минут больше 10
 						onChange={time =>
 							handleTimeChangeBreathHolding(time, 'twoTimeBreathHolding')
@@ -225,7 +237,9 @@ export const SettingModal = (props: ISettingModal) => {
 						picker='time'
 						format='mm:ss'
 						showNow={false}
-						defaultValue={dayjs('00:30', 'mm:ss')}
+						defaultValue={handlerDefaultValueDatePicker(
+							'threeTimeBreathHolding'
+						)}
 						disabledTime={disabledRangeTime} // Отключаем выбор минут больше 10
 						onChange={time =>
 							handleTimeChangeBreathHolding(time, 'threeTimeBreathHolding')
@@ -249,7 +263,9 @@ export const SettingModal = (props: ISettingModal) => {
 						picker='time'
 						format='mm:ss'
 						showNow={false}
-						defaultValue={dayjs('00:30', 'mm:ss')}
+						defaultValue={handlerDefaultValueDatePicker(
+							'fourTimeBreathHolding'
+						)}
 						disabledTime={disabledRangeTime} // Отключаем выбор минут больше 10
 						onChange={time =>
 							handleTimeChangeBreathHolding(time, 'fourTimeBreathHolding')

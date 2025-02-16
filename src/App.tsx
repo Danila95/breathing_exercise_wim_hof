@@ -16,16 +16,32 @@ function App() {
 	const [cicleBreath, setCicleBreath] = useState<Array<number>>([])
 	const [oneTimeBreathHolding, setOneTimeBreathHolding] = useState<
 		number | null
-	>(null)
+	>(() =>
+		localStorage.getItem('oneTimeBreathHolding')
+			? Number(localStorage.getItem('oneTimeBreathHolding'))
+			: null
+	)
 	const [twoTimeBreathHolding, setTwoTimeBreathHolding] = useState<
 		number | null
-	>(null)
+	>(
+		localStorage.getItem('twoTimeBreathHolding')
+			? Number(localStorage.getItem('twoTimeBreathHolding'))
+			: null
+	)
 	const [threeTimeBreathHolding, setThreeTimeBreathHolding] = useState<
 		number | null
-	>(null)
+	>(
+		localStorage.getItem('threeTimeBreathHolding')
+			? Number(localStorage.getItem('threeTimeBreathHolding'))
+			: null
+	)
 	const [fourTimeBreathHolding, setFourTimeBreathHolding] = useState<
 		number | null
-	>(null)
+	>(
+		localStorage.getItem('fourTimeBreathHolding')
+			? Number(localStorage.getItem('fourTimeBreathHolding'))
+			: null
+	)
 
 	const openSettingModal = () => {
 		setIsOpenModal(true)
