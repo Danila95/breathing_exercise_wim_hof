@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, {
+	Dispatch,
+	SetStateAction,
+	useEffect,
+	useRef,
+	useState
+} from 'react'
 import { Button } from 'antd'
 import {
 	PlayCircleOutlined,
@@ -9,16 +15,22 @@ import { SettingModal } from './components/SettingModal'
 
 function App() {
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
-	const [speedAudio, setSpeedAudio] = useState(localStorage.getItem('speedBreath')
-		? Number(localStorage.getItem('speedBreath'))
-		: 0.8) // Скорость дыхания
+	const [speedAudio, setSpeedAudio] = useState(
+		localStorage.getItem('speedBreath')
+			? Number(localStorage.getItem('speedBreath'))
+			: 0.8
+	) // Скорость дыхания
 	const audioRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const [countBreathes, setCountBreathes] = useState(0)
 	const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
-	const [cicleBreath, setCicleBreath] = useState<Array<number> | null>(	localStorage.getItem('cicleBreath')
-		// @ts-ignore
-		? localStorage.getItem('cicleBreath').split('-').map(Number)
-		: null)
+	const [cicleBreath, setCicleBreath] = useState<Array<number> | null>(
+		localStorage.getItem('cicleBreath')
+			? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-expect-error
+				localStorage.getItem('cicleBreath').split('-').map(Number)
+			: null
+	)
+	const [session, setSession] = useState<boolean>(false)
 	const [oneTimeBreathHolding, setOneTimeBreathHolding] = useState<
 		number | null
 	>(() =>
@@ -48,6 +60,11 @@ function App() {
 			: null
 	)
 
+	const [cicleOne, setCicleOne] = useState<boolean>(false)
+	const [cicleTwo, setCicleTwo] = useState<boolean>(false)
+	const [cicleThree, setCicleThree] = useState<boolean>(false)
+	const [cicleFour, setCicleFour] = useState<boolean>(false)
+
 	const openSettingModal = () => {
 		setIsOpenModal(true)
 	}
@@ -73,7 +90,12 @@ function App() {
 	}, [countBreathes, isPlaying, speedAudio])
 
 	useEffect(() => {
-		if (countBreathes === 40) {
+		if (
+			countBreathes === (cicleBreath && cicleBreath[0]) ||
+			countBreathes === (cicleBreath && cicleBreath[1]) ||
+			countBreathes === (cicleBreath && cicleBreath[2]) ||
+			countBreathes === (cicleBreath && cicleBreath[3])
+		) {
 			if (audioRef.current) {
 				if ('pause' in audioRef.current) {
 					audioRef.current.pause()
@@ -96,8 +118,9 @@ function App() {
 	}, [speedAudio])
 
 	// Функция для переключения между воспроизведением и паузой
-	const handleStartBreathe = () => {
-		if (!isPlaying) {
+	// autoKey - автоматический ключ по воспроизведению записи в след. цикле
+	const handleStartBreathe = (autoKey?: boolean) => {
+		if (!isPlaying || autoKey) {
 			if (audioRef.current) {
 				// Начинаем воспроизведение
 				if ('play' in audioRef.current) {
@@ -105,6 +128,7 @@ function App() {
 				}
 			}
 			setIsPlaying(true)
+			// setSession(true)
 		} else {
 			if (audioRef.current) {
 				// Ставим на паузу
@@ -119,13 +143,72 @@ function App() {
 		}
 	}
 
+	const handlerTimer = (
+		time: number,
+		setCicle?: Dispatch<SetStateAction<boolean>>
+	) => {
+		setTimeout(() => {
+			console.log('handlerTimer work')
+			if (setCicle) {
+				setCicle(true)
+				handleStartBreathe(true)
+			}
+		}, time)
+	}
+
+	useEffect(() => {
+		if (isPlaying) {
+			if (!cicleTwo && !cicleThree && !cicleFour) {
+				setCicleOne(true)
+			}
+
+			if (cicleOne && cicleBreath && cicleBreath[0] === countBreathes) {
+				handlerTimer(Number(oneTimeBreathHolding), setCicleTwo)
+				setCicleOne(false)
+				console.log('cicleOne')
+			}
+			if (cicleTwo && cicleBreath && cicleBreath[1] === countBreathes) {
+				handlerTimer(Number(twoTimeBreathHolding), setCicleThree)
+				setCicleTwo(false)
+				console.log('cicleTwo')
+			}
+			if (cicleThree && cicleBreath && cicleBreath[2] === countBreathes) {
+				handlerTimer(Number(threeTimeBreathHolding), setCicleFour)
+				setCicleThree(false)
+				console.log('cicleThree')
+			}
+			if (cicleFour && cicleBreath && cicleBreath[3] === countBreathes) {
+				handlerTimer(Number(fourTimeBreathHolding))
+				setCicleFour(false)
+				console.log('cicleFour')
+			}
+
+			// если упражнение всего на 3 цикла
+			// if (cicleBreath && cicleBreath[3] === undefined) {
+			// 	setSession(false)
+			// }
+		}
+	}, [
+		isPlaying,
+		cicleOne,
+		countBreathes,
+		cicleBreath,
+		cicleTwo,
+		cicleThree,
+		cicleFour,
+		oneTimeBreathHolding,
+		twoTimeBreathHolding,
+		threeTimeBreathHolding,
+		fourTimeBreathHolding
+	])
+
 	return (
-		<div style={{margin: '50px'}}>
+		<div style={{ margin: '50px' }}>
 			{!isPlaying && (
 				<Button
 					type='link'
 					onClick={() => openSettingModal()}
-					icon={<SettingOutlined/>}
+					icon={<SettingOutlined />}
 				>
 					Настройки
 				</Button>
@@ -151,8 +234,8 @@ function App() {
 				}}
 			>
 				<Button
-					onClick={handleStartBreathe}
-					icon={isPlaying ? <PauseOutlined/> : <PlayCircleOutlined/>}
+					onClick={() => handleStartBreathe()}
+					icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
 					size='large'
 					iconPosition='end'
 				>

@@ -9,7 +9,7 @@ import {
 	Typography
 } from 'antd'
 import dayjs from 'dayjs'
-import {createLogger} from "vite";
+import { createLogger } from 'vite'
 
 interface ISettingModal {
 	onClose: () => void
@@ -91,12 +91,15 @@ export const SettingModal = (props: ISettingModal) => {
 		if (localStorage.getItem(name)) {
 			const time = localStorage.getItem(name)
 			const milliseconds = parseInt(String(time), 10) // Преобразуем строку в число
-			const minutes = milliseconds / 1000 / 60 >= 1 ? Math.floor(milliseconds / 1000 / 60) : 0
-			const seconds = milliseconds / 1000 % 60
+			const minutes =
+				milliseconds / 1000 / 60 >= 1 ? Math.floor(milliseconds / 1000 / 60) : 0
+			const seconds = (milliseconds / 1000) % 60
 
 			// Преобразуем время в формат dayjs
-			const FormattedMinutes = minutes < 10 && minutes >= 0 ? `0${minutes}` : minutes
-			const FormattedSeconds = seconds < 10 && seconds >= 0 ? `0${seconds}` : seconds
+			const FormattedMinutes =
+				minutes < 10 && minutes >= 0 ? `0${minutes}` : minutes
+			const FormattedSeconds =
+				seconds < 10 && seconds >= 0 ? `0${seconds}` : seconds
 
 			return dayjs(`${FormattedMinutes}:${FormattedSeconds}`, 'mm:ss')
 		}
@@ -145,7 +148,7 @@ export const SettingModal = (props: ISettingModal) => {
 				>
 					<Typography.Text type='secondary'>Скорость дыхания</Typography.Text>
 					<Slider
-						defaultValue={speedAudio ? speedAudio : 0.8}
+						defaultValue={speedAudio || 0.8}
 						min={0.7}
 						max={2}
 						step={0.1}
@@ -171,8 +174,10 @@ export const SettingModal = (props: ISettingModal) => {
 						onChange={handleCicleBreath}
 						options={[
 							{
-								value: '30-30-30',
-								label: '30-30-30'
+								// value: '30-30-30',
+								// label: '30-30-30'
+								value: '5-5-5-5',
+								label: '5-5-5-5'
 							},
 							{
 								value: '40-40-40-40',
