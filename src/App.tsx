@@ -1,6 +1,7 @@
 import React, {
 	Dispatch,
 	SetStateAction,
+	useCallback,
 	useEffect,
 	useRef,
 	useState
@@ -21,6 +22,7 @@ function App() {
 			: 0.8
 	) // Скорость дыхания
 	const audioRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
+	const triangleSoundEffectRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const [countBreathes, setCountBreathes] = useState(0)
 	const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
 	const [cicleBreath, setCicleBreath] = useState<Array<number> | null>(
@@ -30,7 +32,8 @@ function App() {
 				localStorage.getItem('cicleBreath').split('-').map(Number)
 			: null
 	)
-	const [session, setSession] = useState<boolean>(false)
+	const [pause, setPause] = useState<boolean>(false)
+	const [timeRemaining, setTimeRemaining] = useState<boolean>(false)
 	const [oneTimeBreathHolding, setOneTimeBreathHolding] = useState<
 		number | null
 	>(() =>
@@ -85,11 +88,11 @@ function App() {
 		// Очистка эффекта при размонтировании компонента
 		return () => {
 			clearInterval(intervalId)
-			// setLastCount(countBreathes)
 		}
 	}, [countBreathes, isPlaying, speedAudio])
 
 	useEffect(() => {
+		// Если кол-во вдохов === заданному кол-во, то останавливаем воспроизведение записи
 		if (
 			countBreathes === (cicleBreath && cicleBreath[0]) ||
 			countBreathes === (cicleBreath && cicleBreath[1]) ||
@@ -107,7 +110,9 @@ function App() {
 			}
 			setIsPlaying(false)
 		}
-	}, [countBreathes])
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+	}, [cicleBreath, countBreathes])
 
 	useEffect(() => {
 		if (audioRef.current) {
@@ -119,39 +124,104 @@ function App() {
 
 	// Функция для переключения между воспроизведением и паузой
 	// autoKey - автоматический ключ по воспроизведению записи в след. цикле
-	const handleStartBreathe = (autoKey?: boolean) => {
-		if (!isPlaying || autoKey) {
-			if (audioRef.current) {
-				// Начинаем воспроизведение
-				if ('play' in audioRef.current) {
-					audioRef.current.play()
+	const handleStartBreathe = useCallback(
+		(autoKey?: boolean) => {
+			if (!isPlaying || autoKey) {
+				if (audioRef.current) {
+					// Начинаем воспроизведение
+					if ('play' in audioRef.current) {
+						audioRef.current.play()
+					}
 				}
-			}
-			setIsPlaying(true)
-			// setSession(true)
-		} else {
-			if (audioRef.current) {
-				// Ставим на паузу
-				if ('pause' in audioRef.current) {
-					audioRef.current.pause()
-					audioRef.current.currentTime = 0
-					setCountBreathes(0)
-					// setLastCount(0)
+				setIsPlaying(true)
+				setPause(false)
+			} else {
+				if (audioRef.current) {
+					// Ставим на паузу
+					if ('pause' in audioRef.current) {
+						audioRef.current.pause()
+						// audioRef.current.currentTime = 0
+						// setCountBreathes(0)
+						setPause(true)
+					}
 				}
+				setIsPlaying(false)
 			}
-			setIsPlaying(false)
+		},
+		[isPlaying]
+	)
+
+	const playTriangleSoundEffect = () => {
+		if (triangleSoundEffectRef.current) {
+			if ('play' in triangleSoundEffectRef.current) {
+				triangleSoundEffectRef.current.play()
+			}
 		}
+		setTimeout(() => {
+			if (triangleSoundEffectRef.current) {
+				triangleSoundEffectRef.current.pause()
+				triangleSoundEffectRef.current.currentTime = 0
+			}
+		}, 2500)
 	}
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const takeBreakThreeSeconds = () => {
+		playTriangleSoundEffect()
+		setTimeout(() => {
+			// Проверяем на последний цикл и в зависимости сколько циклов было выбрано
+			if (
+				(!cicleFour && cicleBreath?.length === 4) ||
+				(!cicleThree && cicleBreath?.length === 3)
+			) {
+				// Запускаем следующий цикл
+				handleStartBreathe(true)
+			}
+		}, 3000)
+	}
+
+	// функция по вдоху и задержки дыхания на 15 секунд
+	const takingBreathe = useCallback(() => {
+		console.log('takingBreathe')
+		playTriangleSoundEffect()
+
+		setTimeout(() => {
+			takeBreakThreeSeconds()
+		}, 5000)
+	}, [takeBreakThreeSeconds])
+
+	// const timerLeft = UseBreathingTimer(5000, () => {
+	// 	takingBreathe()
+	// 	console.log('pause')
+	// })
+
+	useEffect(() => {
+		// const timerLeft = UseBreathingTimer(5000, () => {
+		// 	takingBreathe()
+		// 	console.log('pause')
+		// })
+	}, [isPlaying, takingBreathe])
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const handlerTimer = (
 		time: number,
 		setCicle?: Dispatch<SetStateAction<boolean>>
 	) => {
+		console.log('handlerTimer')
 		setTimeout(() => {
-			console.log('handlerTimer work')
 			if (setCicle) {
 				setCicle(true)
-				handleStartBreathe(true)
+				// Запускаем вдох и задержку дыхания на 15 секунд
+				takingBreathe()
+			}
+			// Проверяем на последний цикл
+			console.log('cicleOne: ', cicleOne)
+			console.log('cicleTwo: ', cicleTwo)
+			console.log('cicleThree: ', cicleThree)
+			console.log('cicleFour: ', cicleFour)
+			if (!cicleOne && !cicleTwo && !cicleThree && cicleFour) {
+				// Запускаем вдох и задержку дыхания на 15 секунд
+				takingBreathe()
 			}
 		}, time)
 	}
@@ -163,31 +233,42 @@ function App() {
 			}
 
 			if (cicleOne && cicleBreath && cicleBreath[0] === countBreathes) {
-				handlerTimer(Number(oneTimeBreathHolding), setCicleTwo)
-				setCicleOne(false)
 				console.log('cicleOne')
+				setCicleOne(false)
+
+				playTriangleSoundEffect()
+				// Запускаем задержку дыхания по первому циклу
+				handlerTimer(Number(oneTimeBreathHolding), setCicleTwo)
 			}
 			if (cicleTwo && cicleBreath && cicleBreath[1] === countBreathes) {
-				handlerTimer(Number(twoTimeBreathHolding), setCicleThree)
-				setCicleTwo(false)
 				console.log('cicleTwo')
+				setCicleTwo(false)
+
+				playTriangleSoundEffect()
+				// Запускаем задержку дыхания по второму циклу
+				handlerTimer(Number(twoTimeBreathHolding), setCicleThree)
 			}
 			if (cicleThree && cicleBreath && cicleBreath[2] === countBreathes) {
-				handlerTimer(Number(threeTimeBreathHolding), setCicleFour)
-				setCicleThree(false)
 				console.log('cicleThree')
+				setCicleThree(false)
+
+				playTriangleSoundEffect()
+				// Запускаем задержку дыхания по третьему циклу
+				handlerTimer(Number(threeTimeBreathHolding), setCicleFour)
 			}
 			if (cicleFour && cicleBreath && cicleBreath[3] === countBreathes) {
-				handlerTimer(Number(fourTimeBreathHolding))
-				setCicleFour(false)
 				console.log('cicleFour')
-			}
+				setCicleFour(false)
+				// // Ставим флаг на первое цикле false, чтобы не попасть в бесконечность
+				// setCicleOne(false)
 
-			// если упражнение всего на 3 цикла
-			// if (cicleBreath && cicleBreath[3] === undefined) {
-			// 	setSession(false)
-			// }
+				playTriangleSoundEffect()
+				// Запускаем задержку дыхания по четвертому циклу
+				handlerTimer(Number(fourTimeBreathHolding))
+			}
 		}
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
 	}, [
 		isPlaying,
 		cicleOne,
@@ -199,7 +280,8 @@ function App() {
 		oneTimeBreathHolding,
 		twoTimeBreathHolding,
 		threeTimeBreathHolding,
-		fourTimeBreathHolding
+		fourTimeBreathHolding,
+		handlerTimer
 	])
 
 	return (
@@ -255,6 +337,12 @@ function App() {
 			<audio
 				ref={audioRef}
 				src='/01_Marina1.m4a'
+				hidden
+			/>
+			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+			<audio
+				ref={triangleSoundEffectRef}
+				src='/triangle_sound_effect.mp3'
 				hidden
 			/>
 		</div>
