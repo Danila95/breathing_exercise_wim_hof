@@ -94,10 +94,10 @@ function App() {
 	useEffect(() => {
 		// Если кол-во вдохов === заданному кол-во, то останавливаем воспроизведение записи
 		if (
-			countBreathes === (cicleBreath && cicleBreath[0]) ||
-			countBreathes === (cicleBreath && cicleBreath[1]) ||
-			countBreathes === (cicleBreath && cicleBreath[2]) ||
-			countBreathes === (cicleBreath && cicleBreath[3])
+			(countBreathes === (cicleBreath && cicleBreath[0]) && cicleOne) ||
+			(countBreathes === (cicleBreath && cicleBreath[1]) && cicleTwo) ||
+			(countBreathes === (cicleBreath && cicleBreath[2]) && cicleThree) ||
+			(countBreathes === (cicleBreath && cicleBreath[3]) && cicleFour)
 		) {
 			if (audioRef.current) {
 				if ('pause' in audioRef.current) {
@@ -112,7 +112,7 @@ function App() {
 		}
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
-	}, [cicleBreath, countBreathes])
+	}, [cicleBreath, cicleFour, cicleOne, cicleThree, cicleTwo, countBreathes])
 
 	useEffect(() => {
 		if (audioRef.current) {
