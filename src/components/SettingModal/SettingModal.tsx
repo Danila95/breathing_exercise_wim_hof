@@ -16,11 +16,11 @@ interface ISettingModal {
 	isOpenModal: boolean
 	speedAudio: number
 	setSpeedAudio: (value: number) => void
-	setCicleBreath: React.Dispatch<React.SetStateAction<Array<number> | null>>
-	setOneTimeBreathHolding: React.Dispatch<React.SetStateAction<number | null>>
-	setTwoTimeBreathHolding: React.Dispatch<React.SetStateAction<number | null>>
-	setThreeTimeBreathHolding: React.Dispatch<React.SetStateAction<number | null>>
-	setFourTimeBreathHolding: React.Dispatch<React.SetStateAction<number | null>>
+	setCicleBreath: React.Dispatch<React.SetStateAction<Array<number> | void>>
+	setOneTimeBreathHolding: React.Dispatch<React.SetStateAction<number | void>>
+	setTwoTimeBreathHolding: React.Dispatch<React.SetStateAction<number | void>>
+	setThreeTimeBreathHolding: React.Dispatch<React.SetStateAction<number | void>>
+	setFourTimeBreathHolding: React.Dispatch<React.SetStateAction<number | void>>
 }
 
 export const SettingModal = (props: ISettingModal) => {

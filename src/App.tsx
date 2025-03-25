@@ -16,51 +16,51 @@ import { SettingModal } from './components/SettingModal'
 
 function App() {
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
-	const [speedAudio, setSpeedAudio] = useState(
+	const [speedAudio, setSpeedAudio] = useState<number | any | void>(
 		localStorage.getItem('speedBreath')
 			? Number(localStorage.getItem('speedBreath'))
-			: 0.8
+			: localStorage.setItem('speedBreath', '0.8')
 	) // Скорость дыхания
 	const audioRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const triangleSoundEffectRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const [countBreathes, setCountBreathes] = useState(0)
 	const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
-	const [cicleBreath, setCicleBreath] = useState<Array<number> | null>(
+	const [cicleBreath, setCicleBreath] = useState<Array<number> | void>(
 		localStorage.getItem('cicleBreath')
 			? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				localStorage.getItem('cicleBreath').split('-').map(Number)
-			: null
+			: localStorage.setItem('cicleBreath', '40-40-40-40')
 	)
 	const [pause, setPause] = useState<boolean>(false)
 	const [timeRemaining, setTimeRemaining] = useState<boolean>(false)
 	const [oneTimeBreathHolding, setOneTimeBreathHolding] = useState<
-		number | null
+		number | void
 	>(() =>
 		localStorage.getItem('oneTimeBreathHolding')
 			? Number(localStorage.getItem('oneTimeBreathHolding'))
-			: null
+			: localStorage.setItem('oneTimeBreathHolding', '30000')
 	)
 	const [twoTimeBreathHolding, setTwoTimeBreathHolding] = useState<
-		number | null
+		number | void
 	>(
 		localStorage.getItem('twoTimeBreathHolding')
 			? Number(localStorage.getItem('twoTimeBreathHolding'))
-			: null
+			: localStorage.setItem('twoTimeBreathHolding', '30000')
 	)
 	const [threeTimeBreathHolding, setThreeTimeBreathHolding] = useState<
-		number | null
+		number | void
 	>(
 		localStorage.getItem('threeTimeBreathHolding')
 			? Number(localStorage.getItem('threeTimeBreathHolding'))
-			: null
+			: localStorage.setItem('threeTimeBreathHolding', '30000')
 	)
 	const [fourTimeBreathHolding, setFourTimeBreathHolding] = useState<
-		number | null
+		number | void
 	>(
 		localStorage.getItem('fourTimeBreathHolding')
 			? Number(localStorage.getItem('fourTimeBreathHolding'))
-			: null
+			: localStorage.setItem('fourTimeBreathHolding', '30000')
 	)
 
 	const [cicleOne, setCicleOne] = useState<boolean>(false)
@@ -80,9 +80,12 @@ function App() {
 		let intervalId: ReturnType<typeof setInterval>
 
 		if (isPlaying) {
-			intervalId = setInterval(() => {
-				setCountBreathes(prevNum => prevNum + 1)
-			}, 2450 / speedAudio)
+			intervalId = setInterval(
+				() => {
+					setCountBreathes(prevNum => prevNum + 1)
+				},
+				2450 / Number(speedAudio)
+			)
 		}
 
 		// Очистка эффекта при размонтировании компонента
@@ -187,7 +190,7 @@ function App() {
 
 		setTimeout(() => {
 			takeBreakThreeSeconds()
-		}, 5000)
+		}, 15000)
 	}, [takeBreakThreeSeconds])
 
 	// const timerLeft = UseBreathingTimer(5000, () => {
