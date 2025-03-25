@@ -12,6 +12,7 @@ import {
 	PauseOutlined,
 	SettingOutlined
 } from '@ant-design/icons'
+import { CountdownTimer } from '@/components/CountdownTimer'
 import { SettingModal } from './components/SettingModal'
 
 function App() {
@@ -334,7 +335,7 @@ function App() {
 					Количество вдохов/выдохов: {countBreathes}
 				</div>
 			</div>
-
+			<CountdownTimer />
 			{/* Аудиоплеер */}
 			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
 			<audio

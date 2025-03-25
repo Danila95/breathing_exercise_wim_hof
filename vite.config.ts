@@ -32,7 +32,7 @@ export default defineConfig(() => {
 			rollupOptions: {
 				output: {
 					// Настройка каталога для файлов .js
-					entryFileNames: 'js/[name].js',
+					entryFileNames: 'js/[name]-[hash].js',
 					chunkFileNames: 'js/[name]-[hash].js',
 					assetFileNames: ({ names }) => {
 						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
