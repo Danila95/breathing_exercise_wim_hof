@@ -5,11 +5,15 @@ import cls from './CountdownTimer.module.scss'
 
 interface ICountdownTimer {
 	className?: string
+	timeHoldingBreath: number
 }
 
-export const CountdownTimer = ({ className }: ICountdownTimer) => {
+export const CountdownTimer = ({
+	className,
+	timeHoldingBreath
+}: ICountdownTimer) => {
 	// Start with an initial value
-	const TIME_LIMIT = 20
+	const TIME_LIMIT = timeHoldingBreath / 1000 // Таймаут на время задержки дыхания в секундах
 	const FULL_DASH_ARRAY = 283
 	// Warning occurs at 10s
 	const WARNING_THRESHOLD = 10
@@ -18,7 +22,7 @@ export const CountdownTimer = ({ className }: ICountdownTimer) => {
 
 	const [time, setTime] = useState<string>('')
 	// Initially, no time has passed, but this will count up
-	const [timePassed, setTimePassed] = useState<number>(0)
+	// const [timePassed, setTimePassed] = useState<number>(0)
 	const [timeLeft, setTimeLeft] = useState<number>(TIME_LIMIT)
 
 	const formatTime = (time: number) => {
@@ -39,9 +43,9 @@ export const CountdownTimer = ({ className }: ICountdownTimer) => {
 
 	// Divides time left by the defined time limit.
 	const calculateTimeFraction = useCallback(() => {
-		const rawTimeFraction = timeLeft / TIME_LIMIT;
-		return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
-	}, [timeLeft])
+		const rawTimeFraction = timeLeft / TIME_LIMIT
+		return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction)
+	}, [TIME_LIMIT, timeLeft])
 
 	// Update the dasharray value as time passes, starting with 283
 	const setCircleDasharray = useCallback(() => {
@@ -99,19 +103,26 @@ export const CountdownTimer = ({ className }: ICountdownTimer) => {
 	)
 
 	useEffect(() => {
-		if (timeLeft !== -1) {
-			const timerInterval = setInterval(() => {
-				setTimePassed(prev => prev + 1)
-				setTimeLeft(TIME_LIMIT - timePassed)
+		// Сбрасываем таймер при изменении timeHoldingBreath
+		setTimeLeft(TIME_LIMIT)
+		setTime(formatTime(TIME_LIMIT))
+	}, [TIME_LIMIT, timeHoldingBreath])
 
-				setTime(formatTime(timeLeft))
+	useEffect(() => {
+		if (timeLeft <= 0) return
+
+		const timerInterval = setInterval(() => {
+			setTimeLeft(prev => {
+				const newTime = prev - 1
+				setTime(formatTime(newTime))
 				setCircleDasharray()
-				setRemainingPathColor(timeLeft)
-			}, 1000)
+				setRemainingPathColor(newTime)
+				return newTime
+			})
+		}, 1000)
 
-			return () => clearInterval(timerInterval)
-		}
-	}, [setCircleDasharray, setRemainingPathColor, time, timeLeft, timePassed])
+		return () => clearInterval(timerInterval)
+	}, [TIME_LIMIT, setCircleDasharray, setRemainingPathColor, time, timeLeft])
 
 	return (
 		<div className={cls.baseTimer}>

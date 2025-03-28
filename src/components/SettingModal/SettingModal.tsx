@@ -174,10 +174,10 @@ export const SettingModal = (props: ISettingModal) => {
 						onChange={handleCicleBreath}
 						options={[
 							{
-								value: '30-30-30',
-								label: '30-30-30'
-								// value: '5-5-5-5',
-								// label: '5-5-5-5'
+								// value: '30-30-30',
+								// label: '30-30-30'
+								value: '5-5-5-5',
+								label: '5-5-5-5'
 							},
 							{
 								value: '40-40-40-40',

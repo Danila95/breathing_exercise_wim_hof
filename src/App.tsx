@@ -6,7 +6,7 @@ import React, {
 	useRef,
 	useState
 } from 'react'
-import { Button } from 'antd'
+import { Button, Flex } from 'antd'
 import {
 	PlayCircleOutlined,
 	PauseOutlined,
@@ -26,6 +26,7 @@ function App() {
 	const triangleSoundEffectRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const [countBreathes, setCountBreathes] = useState(0)
 	const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
+	const [holdingBreath, setHoldingBreath] = useState<boolean>(false)
 	const [cicleBreath, setCicleBreath] = useState<Array<number> | void>(
 		localStorage.getItem('cicleBreath')
 			? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -68,6 +69,8 @@ function App() {
 	const [cicleTwo, setCicleTwo] = useState<boolean>(false)
 	const [cicleThree, setCicleThree] = useState<boolean>(false)
 	const [cicleFour, setCicleFour] = useState<boolean>(false)
+	// Номер цикла по которому мы определяем на каком цикле мы находимся
+	const [numberCicle, setNumberCicle] = useState<number>(0)
 
 	const openSettingModal = () => {
 		setIsOpenModal(true)
@@ -130,6 +133,7 @@ function App() {
 	// autoKey - автоматический ключ по воспроизведению записи в след. цикле
 	const handleStartBreathe = useCallback(
 		(autoKey?: boolean) => {
+			setHoldingBreath(false)
 			if (!isPlaying || autoKey) {
 				if (audioRef.current) {
 					// Начинаем воспроизведение
@@ -212,6 +216,7 @@ function App() {
 		setCicle?: Dispatch<SetStateAction<boolean>>
 	) => {
 		console.log('handlerTimer')
+		setHoldingBreath(true)
 		setTimeout(() => {
 			if (setCicle) {
 				setCicle(true)
@@ -239,6 +244,7 @@ function App() {
 			if (cicleOne && cicleBreath && cicleBreath[0] === countBreathes) {
 				console.log('cicleOne')
 				setCicleOne(false)
+				setNumberCicle(1)
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по первому циклу
@@ -247,6 +253,7 @@ function App() {
 			if (cicleTwo && cicleBreath && cicleBreath[1] === countBreathes) {
 				console.log('cicleTwo')
 				setCicleTwo(false)
+				setNumberCicle(2)
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по второму циклу
@@ -255,6 +262,7 @@ function App() {
 			if (cicleThree && cicleBreath && cicleBreath[2] === countBreathes) {
 				console.log('cicleThree')
 				setCicleThree(false)
+				setNumberCicle(3)
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по третьему циклу
@@ -263,8 +271,7 @@ function App() {
 			if (cicleFour && cicleBreath && cicleBreath[3] === countBreathes) {
 				console.log('cicleFour')
 				setCicleFour(false)
-				// // Ставим флаг на первое цикле false, чтобы не попасть в бесконечность
-				// setCicleOne(false)
+				setNumberCicle(4)
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по четвертому циклу
@@ -319,23 +326,40 @@ function App() {
 					justifyContent: 'center'
 				}}
 			>
-				<Button
-					onClick={() => handleStartBreathe()}
-					icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
-					size='large'
-					iconPosition='end'
+				<Flex
+					vertical
+					justify='space-between'
+					align='center'
 				>
-					{isPlaying ? 'Stop' : 'Play'}
-				</Button>
-				<div
-					style={{
-						marginTop: '50px'
-					}}
-				>
-					Количество вдохов/выдохов: {countBreathes}
-				</div>
+					{holdingBreath && numberCicle === 1 && (
+						<CountdownTimer timeHoldingBreath={Number(oneTimeBreathHolding)} />
+					)}
+					{holdingBreath && numberCicle === 2 && (
+						<CountdownTimer timeHoldingBreath={Number(twoTimeBreathHolding)} />
+					)}
+					{holdingBreath && numberCicle === 3 && (
+						<CountdownTimer
+							timeHoldingBreath={Number(threeTimeBreathHolding)}
+						/>
+					)}
+					{holdingBreath && numberCicle === 4 && (
+						<CountdownTimer timeHoldingBreath={Number(fourTimeBreathHolding)} />
+					)}
+					<Button
+						onClick={() => handleStartBreathe()}
+						icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
+						size='large'
+						iconPosition='end'
+						style={{
+							padding: '25px',
+							marginBottom: '30px'
+						}}
+					>
+						{isPlaying ? 'Stop' : 'Play'}
+					</Button>
+					<span>Количество вдохов/выдохов: {countBreathes}</span>
+				</Flex>
 			</div>
-			<CountdownTimer />
 			{/* Аудиоплеер */}
 			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
 			<audio

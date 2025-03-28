@@ -1,0 +1,29 @@
+@font-face {
+    font-family: "OpenSans-Reg";
+    src: local("OpenSans-Reg"), url("../public/assets/fonts/OpenSans-Reg.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "OpenSans-Bold";
+    src: local("OpenSans-Bold"), url("../public/assets/fonts/OpenSans-Bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "OpenSans-Italic";
+    src: local("OpenSans-Italic"), url("../public/assets/fonts/OpenSans-Italic.ttf") format("truetype");
+}
+
+:root {
+    --font-family-main:  'OpenSans-Reg', -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-family-bold: 'OpenSans-Bold', -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    // средний размер шрифта (medium)
+    --font-size-m: 16px;
+    --font-line-m: 24px;
+    --font-m: var(--font-size-m) / var(--font-line-m) var(--font-family-main);
+}
+
+body {
+    font: var(--font-m);
+    overflow-y: hidden;
+}
