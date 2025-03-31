@@ -13,6 +13,7 @@ import {
 	SettingOutlined
 } from '@ant-design/icons'
 import { CountdownTimer } from '@/components/CountdownTimer'
+import { Timer } from '@/components/Timer'
 import { SettingModal } from './components/SettingModal'
 
 function App() {
@@ -190,7 +191,7 @@ function App() {
 
 	// функция по вдоху и задержки дыхания на 15 секунд
 	const takingBreathe = useCallback(() => {
-		console.log('takingBreathe')
+		// console.log('takingBreathe')
 		playTriangleSoundEffect()
 
 		setTimeout(() => {
@@ -198,24 +199,12 @@ function App() {
 		}, 15000)
 	}, [takeBreakThreeSeconds])
 
-	// const timerLeft = UseBreathingTimer(5000, () => {
-	// 	takingBreathe()
-	// 	console.log('pause')
-	// })
-
-	useEffect(() => {
-		// const timerLeft = UseBreathingTimer(5000, () => {
-		// 	takingBreathe()
-		// 	console.log('pause')
-		// })
-	}, [isPlaying, takingBreathe])
-
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const handlerTimer = (
 		time: number,
 		setCicle?: Dispatch<SetStateAction<boolean>>
 	) => {
-		console.log('handlerTimer')
+		// console.log('handlerTimer')
 		setHoldingBreath(true)
 		setTimeout(() => {
 			if (setCicle) {
@@ -224,15 +213,15 @@ function App() {
 				takingBreathe()
 			}
 			// Проверяем на последний цикл
-			console.log('cicleOne: ', cicleOne)
-			console.log('cicleTwo: ', cicleTwo)
-			console.log('cicleThree: ', cicleThree)
-			console.log('cicleFour: ', cicleFour)
+			// console.log('cicleOne: ', cicleOne)
+			// console.log('cicleTwo: ', cicleTwo)
+			// console.log('cicleThree: ', cicleThree)
+			// console.log('cicleFour: ', cicleFour)
 			if (!cicleOne && !cicleTwo && !cicleThree && cicleFour) {
 				// Запускаем вдох и задержку дыхания на 15 секунд
 				takingBreathe()
 			}
-		}, time)
+		}, time + 1000)
 	}
 
 	useEffect(() => {
@@ -242,7 +231,7 @@ function App() {
 			}
 
 			if (cicleOne && cicleBreath && cicleBreath[0] === countBreathes) {
-				console.log('cicleOne')
+				// console.log('cicleOne')
 				setCicleOne(false)
 				setNumberCicle(1)
 
@@ -251,7 +240,7 @@ function App() {
 				handlerTimer(Number(oneTimeBreathHolding), setCicleTwo)
 			}
 			if (cicleTwo && cicleBreath && cicleBreath[1] === countBreathes) {
-				console.log('cicleTwo')
+				// console.log('cicleTwo')
 				setCicleTwo(false)
 				setNumberCicle(2)
 
@@ -260,7 +249,7 @@ function App() {
 				handlerTimer(Number(twoTimeBreathHolding), setCicleThree)
 			}
 			if (cicleThree && cicleBreath && cicleBreath[2] === countBreathes) {
-				console.log('cicleThree')
+				// console.log('cicleThree')
 				setCicleThree(false)
 				setNumberCicle(3)
 
@@ -269,7 +258,7 @@ function App() {
 				handlerTimer(Number(threeTimeBreathHolding), setCicleFour)
 			}
 			if (cicleFour && cicleBreath && cicleBreath[3] === countBreathes) {
-				console.log('cicleFour')
+				// console.log('cicleFour')
 				setCicleFour(false)
 				setNumberCicle(4)
 
@@ -345,6 +334,12 @@ function App() {
 					{holdingBreath && numberCicle === 4 && (
 						<CountdownTimer timeHoldingBreath={Number(fourTimeBreathHolding)} />
 					)}
+					{countBreathes >= 0 && !holdingBreath && isPlaying && (
+						<>
+							<Timer time='10' />
+							<span>Количество вдохов/выдохов: {countBreathes}</span>
+						</>
+					)}
 					<Button
 						onClick={() => handleStartBreathe()}
 						icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
@@ -357,7 +352,6 @@ function App() {
 					>
 						{isPlaying ? 'Stop' : 'Play'}
 					</Button>
-					<span>Количество вдохов/выдохов: {countBreathes}</span>
 				</Flex>
 			</div>
 			{/* Аудиоплеер */}

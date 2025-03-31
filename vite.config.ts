@@ -6,6 +6,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig(() => {
 	return {
+		base: './',
 		plugins: [
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-expect-error
