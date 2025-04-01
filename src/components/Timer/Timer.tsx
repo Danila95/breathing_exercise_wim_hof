@@ -7,9 +7,15 @@ interface ITimer {
 	className?: string
 	remainingPathColor?: string
 	time: string
+	isCounter?: boolean
 }
 
-export const Timer = ({ className, remainingPathColor, time }: ITimer) => {
+export const Timer = ({
+	className,
+	remainingPathColor,
+	time,
+	isCounter
+}: ITimer) => {
 	return (
 		<div className={cls.baseTimer}>
 			<svg
@@ -27,7 +33,8 @@ export const Timer = ({ className, remainingPathColor, time }: ITimer) => {
 					<path
 						id='base-timer-path-remaining'
 						strokeDasharray='283'
-						className={`${cls['baseTimer__path-remaining']} ${remainingPathColor}`}
+						// eslint-disable-next-line max-len
+						className={`${cls['baseTimer__path-remaining']} ${remainingPathColor} ${isCounter && cls['baseTimer__path-remaining--green']}`}
 						d='
 							  M 50, 50
 							  m -45, 0

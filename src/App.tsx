@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons'
 import { CountdownTimer } from '@/components/CountdownTimer'
 import { Timer } from '@/components/Timer'
+import { Counter } from '@/components/Counter'
 import { SettingModal } from './components/SettingModal'
 
 function App() {
@@ -335,10 +336,7 @@ function App() {
 						<CountdownTimer timeHoldingBreath={Number(fourTimeBreathHolding)} />
 					)}
 					{countBreathes >= 0 && !holdingBreath && isPlaying && (
-						<>
-							<Timer time='10' />
-							<span>Количество вдохов/выдохов: {countBreathes}</span>
-						</>
+						<Counter countBreathes={countBreathes} />
 					)}
 					<Button
 						onClick={() => handleStartBreathe()}
