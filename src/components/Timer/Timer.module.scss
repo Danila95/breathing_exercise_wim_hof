@@ -32,9 +32,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
+  flex-direction: column;
   /* Sort of an arbitrary number; adjust to your liking */
   font-size: 48px;
+}
+
+.baseTimer__labelSubtitle {
+  font-size: 18px;
+  margin-bottom: 15px;
 }
 
 .baseTimer__path-remaining {

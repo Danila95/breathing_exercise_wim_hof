@@ -8,13 +8,17 @@ interface ITimer {
 	remainingPathColor?: string
 	time: string
 	isCounter?: boolean
+	isHoldingBreath?: boolean
+	isTakingBreathe?: boolean | undefined
 }
 
 export const Timer = ({
 	className,
 	remainingPathColor,
 	time,
-	isCounter
+	isCounter,
+	isHoldingBreath,
+	isTakingBreathe
 }: ITimer) => {
 	return (
 		<div className={cls.baseTimer}>
@@ -34,7 +38,7 @@ export const Timer = ({
 						id='base-timer-path-remaining'
 						strokeDasharray='283'
 						// eslint-disable-next-line max-len
-						className={`${cls['baseTimer__path-remaining']} ${remainingPathColor} ${isCounter && cls['baseTimer__path-remaining--green']}`}
+						className={`${cls['baseTimer__path-remaining']} ${remainingPathColor} ${cls['baseTimer__path-remaining--green']}`}
 						d='
 							  M 50, 50
 							  m -45, 0
@@ -48,6 +52,29 @@ export const Timer = ({
 				id='base-timer-label'
 				className={cls.baseTimer__label}
 			>
+				{isCounter && (
+					<span className={cls.baseTimer__labelSubtitle}>
+						Кол-во вдохов/выдохов
+					</span>
+				)}
+				{isTakingBreathe && (
+					<>
+						<span
+							className={cls.baseTimer__labelSubtitle}
+							style={{ marginBottom: '0px' }}
+						>
+							Глубокий вдох и
+						</span>
+						<span className={cls.baseTimer__labelSubtitle}>
+							задержите дыхание на
+						</span>
+					</>
+				)}
+				{isHoldingBreath && !isTakingBreathe && (
+					<span className={cls.baseTimer__labelSubtitle}>
+						Задержите дыхание на
+					</span>
+				)}
 				{time}
 			</span>
 		</div>

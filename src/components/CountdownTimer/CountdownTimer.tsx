@@ -7,11 +7,13 @@ import cls from './CountdownTimer.module.scss'
 interface ICountdownTimer {
 	className?: string
 	timeHoldingBreath: number
+	isTakingBreathe?: boolean | undefined
 }
 
 export const CountdownTimer = ({
 	className,
-	timeHoldingBreath
+	timeHoldingBreath,
+	isTakingBreathe
 }: ICountdownTimer) => {
 	// Start with an initial value
 	const TIME_LIMIT = timeHoldingBreath / 1000 // Таймаут на время задержки дыхания в секундах
@@ -129,6 +131,8 @@ export const CountdownTimer = ({
 		<Timer
 			time={time}
 			remainingPathColor={remainingPathColor}
+			isHoldingBreath
+			isTakingBreathe={isTakingBreathe}
 		/>
 	)
 }

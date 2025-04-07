@@ -36,6 +36,8 @@ function App() {
 				localStorage.getItem('cicleBreath').split('-').map(Number)
 			: localStorage.setItem('cicleBreath', '40-40-40-40')
 	)
+	const [takingBreatheTime, setTakingBreatheTime] = useState<number>(15000)
+	const [isTakingBreathe, setIsTakingBreathe] = useState<boolean>(false)
 	const [pause, setPause] = useState<boolean>(false)
 	const [timeRemaining, setTimeRemaining] = useState<boolean>(false)
 	const [oneTimeBreathHolding, setOneTimeBreathHolding] = useState<
@@ -185,6 +187,7 @@ function App() {
 				(!cicleThree && cicleBreath?.length === 3)
 			) {
 				// Запускаем следующий цикл
+				setIsTakingBreathe(false)
 				handleStartBreathe(true)
 			}
 		}, 3000)
@@ -194,11 +197,12 @@ function App() {
 	const takingBreathe = useCallback(() => {
 		// console.log('takingBreathe')
 		playTriangleSoundEffect()
+		setIsTakingBreathe(true)
 
 		setTimeout(() => {
 			takeBreakThreeSeconds()
-		}, 15000)
-	}, [takeBreakThreeSeconds])
+		}, takingBreatheTime + 1000)
+	}, [takeBreakThreeSeconds, takingBreatheTime])
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const handlerTimer = (
@@ -321,22 +325,30 @@ function App() {
 					justify='space-between'
 					align='center'
 				>
-					{holdingBreath && numberCicle === 1 && (
+					{holdingBreath && !isTakingBreathe && numberCicle === 1 && (
 						<CountdownTimer timeHoldingBreath={Number(oneTimeBreathHolding)} />
 					)}
-					{holdingBreath && numberCicle === 2 && (
+					{holdingBreath && !isTakingBreathe && numberCicle === 2 && (
 						<CountdownTimer timeHoldingBreath={Number(twoTimeBreathHolding)} />
 					)}
-					{holdingBreath && numberCicle === 3 && (
+					{holdingBreath && !isTakingBreathe && numberCicle === 3 && (
 						<CountdownTimer
 							timeHoldingBreath={Number(threeTimeBreathHolding)}
 						/>
 					)}
-					{holdingBreath && numberCicle === 4 && (
+					{holdingBreath && !isTakingBreathe && numberCicle === 4 && (
 						<CountdownTimer timeHoldingBreath={Number(fourTimeBreathHolding)} />
 					)}
 					{countBreathes >= 0 && !holdingBreath && isPlaying && (
-						<Counter countBreathes={countBreathes} />
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						// @ts-expect-error
+						<Counter countBreathes={Number(cicleBreath[numberCicle])} />
+					)}
+					{isTakingBreathe && (
+						<CountdownTimer
+							timeHoldingBreath={Number(takingBreatheTime)}
+							isTakingBreathe
+						/>
 					)}
 					<Button
 						onClick={() => handleStartBreathe()}
