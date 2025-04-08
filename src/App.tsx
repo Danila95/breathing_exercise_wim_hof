@@ -166,7 +166,13 @@ function App() {
 	const playTriangleSoundEffect = () => {
 		if (triangleSoundEffectRef.current) {
 			if ('play' in triangleSoundEffectRef.current) {
-				triangleSoundEffectRef.current.play()
+				// triangleSoundEffectRef.current.play()
+
+				// Сбросить текущее время и попытаться воспроизвести
+				triangleSoundEffectRef.current.currentTime = 0
+				triangleSoundEffectRef.current
+					.play()
+					.catch(e => console.error('Play failed:', e))
 			}
 		}
 		setTimeout(() => {
@@ -340,9 +346,13 @@ function App() {
 						<CountdownTimer timeHoldingBreath={Number(fourTimeBreathHolding)} />
 					)}
 					{countBreathes >= 0 && !holdingBreath && isPlaying && (
-						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-						// @ts-expect-error
-						<Counter countBreathes={Number(cicleBreath[numberCicle])} />
+						<Counter
+							countBreathes={countBreathes}
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-expect-error
+							maxBreathes={Number(cicleBreath[numberCicle])}
+							speedAudio={speedAudio}
+						/>
 					)}
 					{isTakingBreathe && (
 						<CountdownTimer
@@ -368,13 +378,13 @@ function App() {
 			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
 			<audio
 				ref={audioRef}
-				src='/01_Marina1.m4a'
+				src='./assets/01_Marina1.m4a'
 				hidden
 			/>
 			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
 			<audio
 				ref={triangleSoundEffectRef}
-				src='/triangle_sound_effect.mp3'
+				src='./assets/triangle_sound_effect.mp3'
 				hidden
 			/>
 		</div>

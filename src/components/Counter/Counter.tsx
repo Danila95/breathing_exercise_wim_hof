@@ -8,15 +8,22 @@ import cls from '../CountdownTimer/CountdownTimer.module.scss'
 interface ICounter {
 	className?: string
 	countBreathes: number
+	maxBreathes: number
+	speedAudio: number
 }
 
-export const Counter = ({ className, countBreathes }: ICounter) => {
+export const Counter = ({
+	className,
+	countBreathes,
+	maxBreathes,
+	speedAudio
+}: ICounter) => {
 	const FULL_DASH_ARRAY = 283
 	const WARNING_THRESHOLD = 10
 	const ALERT_THRESHOLD = 5
 
-	const [count, setCount] = useState<number>(1)
-	const [displayTime, setDisplayTime] = useState<string>('1')
+	const [count, setCount] = useState<number>(countBreathes)
+	const [displayTime, setDisplayTime] = useState<string>('0')
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const COLOR_CODES = {
@@ -37,9 +44,9 @@ export const Counter = ({ className, countBreathes }: ICounter) => {
 
 	const calculateTimeFraction = useCallback(() => {
 		// Инвертируем прогресс, так как у нас счет увеличивается, а прогресс бар должен уменьшаться
-		const progress = (countBreathes - count) / countBreathes
-		return progress - (1 / countBreathes) * (1 - progress)
-	}, [countBreathes, count])
+		const progress = (maxBreathes - count) / maxBreathes
+		return progress - (1 / maxBreathes) * (1 - progress)
+	}, [maxBreathes, count])
 
 	const setCircleDasharray = useCallback(() => {
 		const circleDasharray = `${Math.abs(
@@ -77,24 +84,34 @@ export const Counter = ({ className, countBreathes }: ICounter) => {
 	)
 
 	useEffect(() => {
-		if (count >= countBreathes) return
+		if (count >= maxBreathes) return
 
-		const timerInterval = setInterval(() => {
-			setCount(prev => {
-				const newCount = prev + 1
-				setDisplayTime(String(newCount))
+		const timerInterval = setInterval(
+			() => {
+				setCount(() => {
+					const newCount = countBreathes
+					setDisplayTime(String(newCount))
 
-				// Для прогресс-бара используем "оставшееся время" (countBreathes - newCount)
-				const remaining = countBreathes - newCount
-				setCircleDasharray()
-				setRemainingPathColor(remaining)
+					// Для прогресс-бара используем "оставшееся время" (countBreathes - newCount)
+					const remaining = maxBreathes - newCount
+					setCircleDasharray()
+					setRemainingPathColor(remaining)
 
-				return newCount
-			})
-		}, 1000)
+					return newCount
+				})
+			},
+			2450 / Number(speedAudio)
+		)
 
 		return () => clearInterval(timerInterval)
-	}, [countBreathes, count, setCircleDasharray, setRemainingPathColor])
+	}, [
+		maxBreathes,
+		count,
+		setCircleDasharray,
+		setRemainingPathColor,
+		speedAudio,
+		countBreathes
+	])
 
 	return (
 		<>

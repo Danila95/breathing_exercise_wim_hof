@@ -51,6 +51,11 @@ export default defineConfig(() => {
 						if (/\.(woff|woff2|eot|ttf|otf)$/.test(names ?? '')) {
 							return 'assets/fonts/[name][extname]'
 						}
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						// @ts-expect-error
+						if (/\.(m4a|mp3)$/.test(names ?? '')) {
+							return 'assets/[name][extname]'
+						}
 						return 'assets/[name][extname]'
 					}
 				}
