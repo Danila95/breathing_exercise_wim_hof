@@ -23,7 +23,6 @@ export const Counter = ({
 	const ALERT_THRESHOLD = 5
 
 	const [count, setCount] = useState<number>(countBreathes)
-	const [displayTime, setDisplayTime] = useState<string>('0')
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const COLOR_CODES = {
@@ -84,23 +83,21 @@ export const Counter = ({
 	)
 
 	useEffect(() => {
-		if (count >= maxBreathes) return
+		if (countBreathes >= maxBreathes) return
 
 		const timerInterval = setInterval(
 			() => {
 				setCount(() => {
-					const newCount = countBreathes
-					setDisplayTime(String(newCount))
-
-					// Для прогресс-бара используем "оставшееся время" (countBreathes - newCount)
-					const remaining = maxBreathes - newCount
+					// Для прогресс-бара используем "оставшееся время"
+					const remaining = maxBreathes - countBreathes
 					setCircleDasharray()
 					setRemainingPathColor(remaining)
 
-					return newCount
+					return countBreathes
 				})
 			},
-			2450 / Number(speedAudio)
+			// 2450 / Number(speedAudio)
+			1000 / Number(speedAudio)
 		)
 
 		return () => clearInterval(timerInterval)
@@ -116,7 +113,7 @@ export const Counter = ({
 	return (
 		<>
 			<Timer
-				time={displayTime}
+				time={String(countBreathes)}
 				remainingPathColor={remainingPathColor}
 				isCounter
 			/>

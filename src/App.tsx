@@ -13,8 +13,13 @@ import {
 	SettingOutlined
 } from '@ant-design/icons'
 import { CountdownTimer } from '@/components/CountdownTimer'
-import { Timer } from '@/components/Timer'
 import { Counter } from '@/components/Counter'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import { breatheSound } from '@public/assets/01_Marina1.m4a'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import triangleSound from '@public/assets/triangle_sound_effect.mp3'
 import { SettingModal } from './components/SettingModal'
 
 function App() {
@@ -384,8 +389,9 @@ function App() {
 			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
 			<audio
 				ref={triangleSoundEffectRef}
-				src='./assets/triangle_sound_effect.mp3'
+				src={triangleSound}
 				hidden
+				preload='auto'
 			/>
 		</div>
 	)
