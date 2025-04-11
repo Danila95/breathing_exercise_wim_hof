@@ -21,6 +21,7 @@ import { breatheSound } from '@public/assets/01_Marina1.m4a'
 // @ts-expect-error
 import triangleSound from '@public/assets/triangle_sound_effect.mp3'
 import { SettingModal } from './components/SettingModal'
+import Title from 'antd/es/typography/Title'
 
 function App() {
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
@@ -189,7 +190,9 @@ function App() {
 	}
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const takeBreakThreeSeconds = () => {
+	const takeBreakThreeSeconds = (
+		setNumberCicle: Dispatch<SetStateAction<number>>
+	) => {
 		playTriangleSoundEffect()
 		setTimeout(() => {
 			// Проверяем на последний цикл и в зависимости сколько циклов было выбрано
@@ -198,6 +201,7 @@ function App() {
 				(!cicleThree && cicleBreath?.length === 3)
 			) {
 				// Запускаем следующий цикл
+				setNumberCicle(prev => prev + 1)
 				setIsTakingBreathe(false)
 				handleStartBreathe(true)
 			}
@@ -205,19 +209,22 @@ function App() {
 	}
 
 	// функция по вдоху и задержки дыхания на 15 секунд
-	const takingBreathe = useCallback(() => {
+	const takingBreathe = useCallback((
+		setNumberCicle: Dispatch<SetStateAction<number>>
+	) => {
 		// console.log('takingBreathe')
 		playTriangleSoundEffect()
 		setIsTakingBreathe(true)
 
 		setTimeout(() => {
-			takeBreakThreeSeconds()
+			takeBreakThreeSeconds(setNumberCicle)
 		}, takingBreatheTime + 1000)
 	}, [takeBreakThreeSeconds, takingBreatheTime])
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const handlerTimer = (
 		time: number,
+		setNumberCicle: Dispatch<SetStateAction<number>>,
 		setCicle?: Dispatch<SetStateAction<boolean>>
 	) => {
 		// console.log('handlerTimer')
@@ -226,7 +233,7 @@ function App() {
 			if (setCicle) {
 				setCicle(true)
 				// Запускаем вдох и задержку дыхания на 15 секунд
-				takingBreathe()
+				takingBreathe(setNumberCicle)
 			}
 			// Проверяем на последний цикл
 			// console.log('cicleOne: ', cicleOne)
@@ -235,7 +242,7 @@ function App() {
 			// console.log('cicleFour: ', cicleFour)
 			if (!cicleOne && !cicleTwo && !cicleThree && cicleFour) {
 				// Запускаем вдох и задержку дыхания на 15 секунд
-				takingBreathe()
+				takingBreathe(setNumberCicle)
 			}
 		}, time + 1000)
 	}
@@ -244,25 +251,24 @@ function App() {
 		if (isPlaying) {
 			if (!cicleTwo && !cicleThree && !cicleFour) {
 				setCicleOne(true)
+				setNumberCicle(1)
 			}
 
 			if (cicleOne && cicleBreath && cicleBreath[0] === countBreathes) {
 				// console.log('cicleOne')
 				setCicleOne(false)
-				setNumberCicle(1)
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по первому циклу
-				handlerTimer(Number(oneTimeBreathHolding), setCicleTwo)
+				handlerTimer(Number(oneTimeBreathHolding), setNumberCicle, setCicleTwo)
 			}
 			if (cicleTwo && cicleBreath && cicleBreath[1] === countBreathes) {
 				// console.log('cicleTwo')
 				setCicleTwo(false)
-				setNumberCicle(2)
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по второму циклу
-				handlerTimer(Number(twoTimeBreathHolding), setCicleThree)
+				handlerTimer(Number(twoTimeBreathHolding), setNumberCicle, setCicleThree)
 			}
 			if (cicleThree && cicleBreath && cicleBreath[2] === countBreathes) {
 				// console.log('cicleThree')
@@ -271,7 +277,7 @@ function App() {
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по третьему циклу
-				handlerTimer(Number(threeTimeBreathHolding), setCicleFour)
+				handlerTimer(Number(threeTimeBreathHolding), setNumberCicle, setCicleFour)
 			}
 			if (cicleFour && cicleBreath && cicleBreath[3] === countBreathes) {
 				// console.log('cicleFour')
@@ -280,7 +286,7 @@ function App() {
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по четвертому циклу
-				handlerTimer(Number(fourTimeBreathHolding))
+				handlerTimer(Number(fourTimeBreathHolding), setNumberCicle)
 			}
 		}
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -325,7 +331,6 @@ function App() {
 			<div
 				style={{
 					margin: '50px',
-					padding: '50px',
 					display: 'flex',
 					flexDirection: 'column',
 					justifyContent: 'center'
@@ -336,6 +341,18 @@ function App() {
 					justify='space-between'
 					align='center'
 				>
+					{numberCicle === 1 &&
+						<Title level={2}>Первый подход</Title>
+					}
+					{numberCicle === 2 &&
+						<Title level={2}>Второй подход</Title>
+					}
+					{numberCicle === 3 &&
+						<Title level={2}>Третий подход</Title>
+					}
+					{numberCicle === 4 &&
+						<Title level={2}>Четвертый подход</Title>
+					}
 					{holdingBreath && !isTakingBreathe && numberCicle === 1 && (
 						<CountdownTimer timeHoldingBreath={Number(oneTimeBreathHolding)} />
 					)}
