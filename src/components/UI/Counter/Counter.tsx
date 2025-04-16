@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Timer } from '@/components/Timer'
+import { Timer } from '@/components/UI/Timer'
 import Title from 'antd/es/typography/Title'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
-import cls from '../CountdownTimer/CountdownTimer.module.scss'
+import cls from '@/components/UI/CountdownTimer/CountdownTimer.module.scss'
 
 interface ICounter {
 	className?: string

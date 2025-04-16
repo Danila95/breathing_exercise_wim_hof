@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Timer } from '@/components/Timer'
+import { Timer } from '@/components/UI/Timer'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import cls from './CountdownTimer.module.scss'

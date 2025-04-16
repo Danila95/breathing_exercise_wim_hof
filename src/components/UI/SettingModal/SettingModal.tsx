@@ -182,6 +182,10 @@ export const SettingModal = (props: ISettingModal) => {
 								label: '30-30-30'
 							},
 							{
+								value: '30-30-30-30',
+								label: '30-30-30-30'
+							},
+							{
 								value: '40-40-40-40',
 								label: '40-40-40-40'
 							},

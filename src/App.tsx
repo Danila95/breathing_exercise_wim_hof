@@ -12,16 +12,14 @@ import {
 	PauseOutlined,
 	SettingOutlined
 } from '@ant-design/icons'
-import { CountdownTimer } from '@/components/CountdownTimer'
-import { Counter } from '@/components/Counter'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { breatheSound } from '@public/assets/01_Marina1.m4a'
+import { CountdownTimer } from '@/components/UI/CountdownTimer'
+import { Counter } from '@/components/UI/Counter'
+import { SettingModal } from '@/components/UI/SettingModal'
+import Title from 'antd/es/typography/Title'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import triangleSound from '@public/assets/triangle_sound_effect.mp3'
-import { SettingModal } from './components/SettingModal'
-import Title from 'antd/es/typography/Title'
+import { startTimeoutHoldingBreath } from '@/components/startTimeoutHoldingBreath'
 
 function App() {
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
@@ -81,6 +79,24 @@ function App() {
 	const [cicleFour, setCicleFour] = useState<boolean>(false)
 	// Номер цикла по которому мы определяем на каком цикле мы находимся
 	const [numberCicle, setNumberCicle] = useState<number>(0)
+	const [sessionBreath, setSessionBreath] = useState<boolean>(false)
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+	useEffect(() => {
+		if (!sessionBreath) {
+			setNumberCicle(0)
+			setCountBreathes(0)
+			setCicleOne(false)
+			setCicleTwo(false)
+			setCicleThree(false)
+			setCicleFour(false)
+			setIsTakingBreathe(false)
+
+			if (audioRef.current) {
+				audioRef.current.currentTime = 0
+			}
+		}
+	}, [sessionBreath])
 
 	const openSettingModal = () => {
 		setIsOpenModal(true)
@@ -102,11 +118,26 @@ function App() {
 			)
 		}
 
+		// Если принудительно остановили тренировку
+		if (!sessionBreath) {
+			return () => {
+				clearInterval(intervalId)
+			}
+		}
+
 		// Очистка эффекта при размонтировании компонента
 		return () => {
 			clearInterval(intervalId)
 		}
-	}, [countBreathes, isPlaying, speedAudio])
+	}, [countBreathes, isPlaying, sessionBreath, speedAudio])
+
+	useEffect(() => {
+		// Удаляем таймаут при остановке тренировки
+		if (!sessionBreath && timeoutRef.current) {
+			clearTimeout(timeoutRef.current)
+			timeoutRef.current = null
+		}
+	}, [sessionBreath])
 
 	useEffect(() => {
 		// Если кол-во вдохов === заданному кол-во, то останавливаем воспроизведение записи
@@ -151,6 +182,7 @@ function App() {
 						audioRef.current.play()
 					}
 				}
+				setSessionBreath(true)
 				setIsPlaying(true)
 				setPause(false)
 			} else {
@@ -163,6 +195,7 @@ function App() {
 						setPause(true)
 					}
 				}
+				setSessionBreath(false)
 				setIsPlaying(false)
 			}
 		},
@@ -196,55 +229,53 @@ function App() {
 		playTriangleSoundEffect()
 		setTimeout(() => {
 			// Проверяем на последний цикл и в зависимости сколько циклов было выбрано
-			if (
-				(!cicleFour && cicleBreath?.length === 4) ||
-				(!cicleThree && cicleBreath?.length === 3)
-			) {
+			if (numberCicle !== cicleBreath?.length) {
 				// Запускаем следующий цикл
 				setNumberCicle(prev => prev + 1)
 				setIsTakingBreathe(false)
 				handleStartBreathe(true)
+			} else {
+				setSessionBreath(false)
 			}
 		}, 3000)
 	}
 
 	// функция по вдоху и задержки дыхания на 15 секунд
-	const takingBreathe = useCallback((
-		setNumberCicle: Dispatch<SetStateAction<number>>
-	) => {
-		// console.log('takingBreathe')
-		playTriangleSoundEffect()
-		setIsTakingBreathe(true)
+	const takingBreathe = useCallback(
+		(setNumberCicle: Dispatch<SetStateAction<number>>) => {
+			// console.log('takingBreathe')
+			playTriangleSoundEffect()
+			setIsTakingBreathe(true)
 
-		setTimeout(() => {
-			takeBreakThreeSeconds(setNumberCicle)
-		}, takingBreatheTime + 1000)
-	}, [takeBreakThreeSeconds, takingBreatheTime])
+			setTimeout(() => {
+				takeBreakThreeSeconds(setNumberCicle)
+			}, takingBreatheTime + 1000)
+		},
+		[takeBreakThreeSeconds, takingBreatheTime]
+	)
 
+	// функция по задержке дыхания на n-секунд
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const handlerTimer = (
 		time: number,
 		setNumberCicle: Dispatch<SetStateAction<number>>,
 		setCicle?: Dispatch<SetStateAction<boolean>>
 	) => {
-		// console.log('handlerTimer')
 		setHoldingBreath(true)
-		setTimeout(() => {
-			if (setCicle) {
-				setCicle(true)
-				// Запускаем вдох и задержку дыхания на 15 секунд
-				takingBreathe(setNumberCicle)
-			}
-			// Проверяем на последний цикл
-			// console.log('cicleOne: ', cicleOne)
-			// console.log('cicleTwo: ', cicleTwo)
-			// console.log('cicleThree: ', cicleThree)
-			// console.log('cicleFour: ', cicleFour)
-			if (!cicleOne && !cicleTwo && !cicleThree && cicleFour) {
-				// Запускаем вдох и задержку дыхания на 15 секунд
-				takingBreathe(setNumberCicle)
-			}
-		}, time + 1000)
+
+		// Очищаем предыдущий таймер, если он есть
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current)
+		}
+
+		timeoutRef.current = startTimeoutHoldingBreath(
+			time,
+			setNumberCicle,
+			numberCicle,
+			cicleBreath,
+			takingBreathe,
+			setCicle
+		)
 	}
 
 	useEffect(() => {
@@ -255,7 +286,6 @@ function App() {
 			}
 
 			if (cicleOne && cicleBreath && cicleBreath[0] === countBreathes) {
-				// console.log('cicleOne')
 				setCicleOne(false)
 
 				playTriangleSoundEffect()
@@ -263,24 +293,29 @@ function App() {
 				handlerTimer(Number(oneTimeBreathHolding), setNumberCicle, setCicleTwo)
 			}
 			if (cicleTwo && cicleBreath && cicleBreath[1] === countBreathes) {
-				// console.log('cicleTwo')
 				setCicleTwo(false)
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по второму циклу
-				handlerTimer(Number(twoTimeBreathHolding), setNumberCicle, setCicleThree)
+				handlerTimer(
+					Number(twoTimeBreathHolding),
+					setNumberCicle,
+					setCicleThree
+				)
 			}
 			if (cicleThree && cicleBreath && cicleBreath[2] === countBreathes) {
-				// console.log('cicleThree')
 				setCicleThree(false)
 				setNumberCicle(3)
 
 				playTriangleSoundEffect()
 				// Запускаем задержку дыхания по третьему циклу
-				handlerTimer(Number(threeTimeBreathHolding), setNumberCicle, setCicleFour)
+				handlerTimer(
+					Number(threeTimeBreathHolding),
+					setNumberCicle,
+					setCicleFour
+				)
 			}
 			if (cicleFour && cicleBreath && cicleBreath[3] === countBreathes) {
-				// console.log('cicleFour')
 				setCicleFour(false)
 				setNumberCicle(4)
 
@@ -308,7 +343,7 @@ function App() {
 
 	return (
 		<div style={{ margin: '50px' }}>
-			{!isPlaying && (
+			{!sessionBreath && (
 				<Button
 					type='link'
 					onClick={() => openSettingModal()}
@@ -341,42 +376,55 @@ function App() {
 					justify='space-between'
 					align='center'
 				>
-					{numberCicle === 1 &&
-						<Title level={2}>Первый подход</Title>
-					}
-					{numberCicle === 2 &&
-						<Title level={2}>Второй подход</Title>
-					}
-					{numberCicle === 3 &&
-						<Title level={2}>Третий подход</Title>
-					}
-					{numberCicle === 4 &&
-						<Title level={2}>Четвертый подход</Title>
-					}
-					{holdingBreath && !isTakingBreathe && numberCicle === 1 && (
-						<CountdownTimer timeHoldingBreath={Number(oneTimeBreathHolding)} />
-					)}
-					{holdingBreath && !isTakingBreathe && numberCicle === 2 && (
-						<CountdownTimer timeHoldingBreath={Number(twoTimeBreathHolding)} />
-					)}
-					{holdingBreath && !isTakingBreathe && numberCicle === 3 && (
-						<CountdownTimer
-							timeHoldingBreath={Number(threeTimeBreathHolding)}
-						/>
-					)}
-					{holdingBreath && !isTakingBreathe && numberCicle === 4 && (
-						<CountdownTimer timeHoldingBreath={Number(fourTimeBreathHolding)} />
-					)}
-					{countBreathes >= 0 && !holdingBreath && isPlaying && (
-						<Counter
-							countBreathes={countBreathes}
-							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-							// @ts-expect-error
-							maxBreathes={Number(cicleBreath[numberCicle])}
-							speedAudio={speedAudio}
-						/>
-					)}
-					{isTakingBreathe && (
+					{numberCicle === 1 && <Title level={2}>Первый подход</Title>}
+					{numberCicle === 2 && <Title level={2}>Второй подход</Title>}
+					{numberCicle === 3 && <Title level={2}>Третий подход</Title>}
+					{numberCicle === 4 && <Title level={2}>Четвертый подход</Title>}
+					{sessionBreath &&
+						holdingBreath &&
+						!isTakingBreathe &&
+						numberCicle === 1 && (
+							<CountdownTimer
+								timeHoldingBreath={Number(oneTimeBreathHolding)}
+							/>
+						)}
+					{sessionBreath &&
+						holdingBreath &&
+						!isTakingBreathe &&
+						numberCicle === 2 && (
+							<CountdownTimer
+								timeHoldingBreath={Number(twoTimeBreathHolding)}
+							/>
+						)}
+					{sessionBreath &&
+						holdingBreath &&
+						!isTakingBreathe &&
+						numberCicle === 3 && (
+							<CountdownTimer
+								timeHoldingBreath={Number(threeTimeBreathHolding)}
+							/>
+						)}
+					{sessionBreath &&
+						holdingBreath &&
+						!isTakingBreathe &&
+						numberCicle === 4 && (
+							<CountdownTimer
+								timeHoldingBreath={Number(fourTimeBreathHolding)}
+							/>
+						)}
+					{sessionBreath &&
+						countBreathes >= 0 &&
+						!holdingBreath &&
+						isPlaying && (
+							<Counter
+								countBreathes={countBreathes}
+								// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+								// @ts-expect-error
+								maxBreathes={Number(cicleBreath[numberCicle])}
+								speedAudio={speedAudio}
+							/>
+						)}
+					{sessionBreath && isTakingBreathe && (
 						<CountdownTimer
 							timeHoldingBreath={Number(takingBreatheTime)}
 							isTakingBreathe
@@ -384,7 +432,7 @@ function App() {
 					)}
 					<Button
 						onClick={() => handleStartBreathe()}
-						icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
+						icon={sessionBreath ? <PauseOutlined /> : <PlayCircleOutlined />}
 						size='large'
 						iconPosition='end'
 						style={{
@@ -392,7 +440,7 @@ function App() {
 							marginBottom: '30px'
 						}}
 					>
-						{isPlaying ? 'Stop' : 'Play'}
+						{sessionBreath ? 'Остановить тренировку' : 'Начать тренировку'}
 					</Button>
 				</Flex>
 			</div>
