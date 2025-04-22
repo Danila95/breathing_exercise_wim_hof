@@ -19,6 +19,9 @@ import Title from 'antd/es/typography/Title'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import triangleSound from '@public/assets/triangle_sound_effect.mp3'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import Marina from '@public/assets/Marina.mp3'
 import { startTimeoutHoldingBreath } from '@/components/startTimeoutHoldingBreath'
 
 function App() {
@@ -43,7 +46,6 @@ function App() {
 	const [takingBreatheTime, setTakingBreatheTime] = useState<number>(15000)
 	const [isTakingBreathe, setIsTakingBreathe] = useState<boolean>(false)
 	const [pause, setPause] = useState<boolean>(false)
-	const [timeRemaining, setTimeRemaining] = useState<boolean>(false)
 	const [oneTimeBreathHolding, setOneTimeBreathHolding] = useState<
 		number | void
 	>(() =>
@@ -80,23 +82,49 @@ function App() {
 	// Номер цикла по которому мы определяем на каком цикле мы находимся
 	const [numberCicle, setNumberCicle] = useState<number>(0)
 	const [sessionBreath, setSessionBreath] = useState<boolean>(false)
+	// Ссылки на все таймауты
+	const triangleSoundEffectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+	const takingBreatheTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+	const breakTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+	const resetAll = useCallback(() => {
+		// Очистка всех таймеров
+		if (triangleSoundEffectTimeoutRef.current)
+			clearTimeout(triangleSoundEffectTimeoutRef.current)
+		if (timeoutRef.current) clearTimeout(timeoutRef.current)
+		if (takingBreatheTimeoutRef.current)
+			clearTimeout(takingBreatheTimeoutRef.current)
+		if (breakTimeoutRef.current) clearTimeout(breakTimeoutRef.current)
+
+		triangleSoundEffectTimeoutRef.current = null
+		timeoutRef.current = null
+		takingBreatheTimeoutRef.current = null
+		breakTimeoutRef.current = null
+
+		// Сброс состояний
+		setNumberCicle(0)
+		setCountBreathes(0)
+		setCicleOne(false)
+		setCicleTwo(false)
+		setCicleThree(false)
+		setCicleFour(false)
+		setIsTakingBreathe(false)
+		setIsPlaying(false)
+		setPause(true)
+
+		// Остановка аудио
+		if (audioRef.current) {
+			audioRef.current.pause()
+			audioRef.current.currentTime = 0
+		}
+	}, [])
 
 	useEffect(() => {
 		if (!sessionBreath) {
-			setNumberCicle(0)
-			setCountBreathes(0)
-			setCicleOne(false)
-			setCicleTwo(false)
-			setCicleThree(false)
-			setCicleFour(false)
-			setIsTakingBreathe(false)
-
-			if (audioRef.current) {
-				audioRef.current.currentTime = 0
-			}
+			resetAll()
 		}
-	}, [sessionBreath])
+	}, [resetAll, sessionBreath])
 
 	const openSettingModal = () => {
 		setIsOpenModal(true)
@@ -182,7 +210,6 @@ function App() {
 						audioRef.current.play()
 					}
 				}
-				setSessionBreath(true)
 				setIsPlaying(true)
 				setPause(false)
 			} else {
@@ -190,20 +217,21 @@ function App() {
 					// Ставим на паузу
 					if ('pause' in audioRef.current) {
 						audioRef.current.pause()
-						// audioRef.current.currentTime = 0
-						// setCountBreathes(0)
 						setPause(true)
 					}
 				}
-				setSessionBreath(false)
 				setIsPlaying(false)
 			}
 		},
 		[isPlaying]
 	)
 
-	const playTriangleSoundEffect = () => {
-		if (triangleSoundEffectRef.current) {
+	const playTriangleSoundEffect = useCallback(() => {
+		// Очищаем предыдущий таймер
+		if (triangleSoundEffectTimeoutRef.current)
+			clearTimeout(triangleSoundEffectTimeoutRef.current)
+
+		if (sessionBreath && triangleSoundEffectRef.current) {
 			if ('play' in triangleSoundEffectRef.current) {
 				// triangleSoundEffectRef.current.play()
 
@@ -214,20 +242,24 @@ function App() {
 					.catch(e => console.error('Play failed:', e))
 			}
 		}
-		setTimeout(() => {
+		triangleSoundEffectTimeoutRef.current = setTimeout(() => {
 			if (triangleSoundEffectRef.current) {
 				triangleSoundEffectRef.current.pause()
 				triangleSoundEffectRef.current.currentTime = 0
 			}
 		}, 2500)
-	}
+	}, [sessionBreath])
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const takeBreakThreeSeconds = (
 		setNumberCicle: Dispatch<SetStateAction<number>>
 	) => {
 		playTriangleSoundEffect()
-		setTimeout(() => {
+
+		// Очищаем предыдущий таймер
+		if (breakTimeoutRef.current) clearTimeout(breakTimeoutRef.current)
+
+		breakTimeoutRef.current = setTimeout(() => {
 			// Проверяем на последний цикл и в зависимости сколько циклов было выбрано
 			if (numberCicle !== cicleBreath?.length) {
 				// Запускаем следующий цикл
@@ -243,15 +275,18 @@ function App() {
 	// функция по вдоху и задержки дыхания на 15 секунд
 	const takingBreathe = useCallback(
 		(setNumberCicle: Dispatch<SetStateAction<number>>) => {
-			// console.log('takingBreathe')
 			playTriangleSoundEffect()
 			setIsTakingBreathe(true)
 
-			setTimeout(() => {
+			// Очищаем предыдущий таймер
+			if (takingBreatheTimeoutRef.current)
+				clearTimeout(takingBreatheTimeoutRef.current)
+
+			takingBreatheTimeoutRef.current = setTimeout(() => {
 				takeBreakThreeSeconds(setNumberCicle)
 			}, takingBreatheTime + 1000)
 		},
-		[takeBreakThreeSeconds, takingBreatheTime]
+		[playTriangleSoundEffect, takeBreakThreeSeconds, takingBreatheTime]
 	)
 
 	// функция по задержке дыхания на n-секунд
@@ -324,6 +359,10 @@ function App() {
 				handlerTimer(Number(fourTimeBreathHolding), setNumberCicle)
 			}
 		}
+
+		if (!sessionBreath) {
+			resetAll()
+		}
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
 	}, [
@@ -338,7 +377,10 @@ function App() {
 		twoTimeBreathHolding,
 		threeTimeBreathHolding,
 		fourTimeBreathHolding,
-		handlerTimer
+		handlerTimer,
+		sessionBreath,
+		playTriangleSoundEffect,
+		resetAll
 	])
 
 	return (
@@ -376,10 +418,18 @@ function App() {
 					justify='space-between'
 					align='center'
 				>
-					{numberCicle === 1 && <Title level={2}>Первый подход</Title>}
-					{numberCicle === 2 && <Title level={2}>Второй подход</Title>}
-					{numberCicle === 3 && <Title level={2}>Третий подход</Title>}
-					{numberCicle === 4 && <Title level={2}>Четвертый подход</Title>}
+					{sessionBreath && numberCicle === 1 && (
+						<Title level={2}>Первый подход</Title>
+					)}
+					{sessionBreath && numberCicle === 2 && (
+						<Title level={2}>Второй подход</Title>
+					)}
+					{sessionBreath && numberCicle === 3 && (
+						<Title level={2}>Третий подход</Title>
+					)}
+					{sessionBreath && numberCicle === 4 && (
+						<Title level={2}>Четвертый подход</Title>
+					)}
 					{sessionBreath &&
 						holdingBreath &&
 						!isTakingBreathe &&
@@ -431,7 +481,10 @@ function App() {
 						/>
 					)}
 					<Button
-						onClick={() => handleStartBreathe()}
+						onClick={() => {
+							setSessionBreath(!sessionBreath)
+							handleStartBreathe()
+						}}
 						icon={sessionBreath ? <PauseOutlined /> : <PlayCircleOutlined />}
 						size='large'
 						iconPosition='end'
@@ -448,7 +501,7 @@ function App() {
 			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
 			<audio
 				ref={audioRef}
-				src='./assets/01_Marina1.m4a'
+				src={Marina}
 				hidden
 			/>
 			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}

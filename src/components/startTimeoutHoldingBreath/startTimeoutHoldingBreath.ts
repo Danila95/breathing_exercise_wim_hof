@@ -7,10 +7,8 @@ export const startTimeoutHoldingBreath = (
 	cicleBreath: Array<number> | void,
 	takingBreathe: (setNumberCicle: Dispatch<SetStateAction<number>>) => void,
 	setCicle?: Dispatch<SetStateAction<boolean>>
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
 ): ReturnType<typeof setTimeout> => {
-	const setTimeoutId = setTimeout(() => {
+	return setTimeout(() => {
 		if (setCicle) {
 			setCicle(true)
 			// Запускаем вдох и задержку дыхания на 15 секунд
