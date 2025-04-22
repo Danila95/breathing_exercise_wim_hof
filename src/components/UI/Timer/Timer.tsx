@@ -4,6 +4,7 @@ import React from 'react'
 import cls from './Timer.module.scss'
 
 interface ITimer {
+	otherText?: string
 	className?: string
 	remainingPathColor?: string
 	time: string
@@ -13,6 +14,7 @@ interface ITimer {
 }
 
 export const Timer = ({
+	otherText,
 	className,
 	remainingPathColor,
 	time,
@@ -70,10 +72,13 @@ export const Timer = ({
 						</span>
 					</>
 				)}
-				{isHoldingBreath && !isTakingBreathe && (
+				{isHoldingBreath && !isTakingBreathe && !otherText && (
 					<span className={cls.baseTimer__labelSubtitle}>
 						Задержите дыхание на
 					</span>
+				)}
+				{otherText && (
+					<span className={cls.baseTimer__labelSubtitle}>{otherText}</span>
 				)}
 				{time}
 			</span>

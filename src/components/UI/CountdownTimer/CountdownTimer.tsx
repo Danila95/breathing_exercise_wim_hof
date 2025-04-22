@@ -8,12 +8,14 @@ interface ICountdownTimer {
 	className?: string
 	timeHoldingBreath: number
 	isTakingBreathe?: boolean | undefined
+	otherText?: string
 }
 
 export const CountdownTimer = ({
 	className,
 	timeHoldingBreath,
-	isTakingBreathe
+	isTakingBreathe,
+	otherText
 }: ICountdownTimer) => {
 	// Start with an initial value
 	const TIME_LIMIT = timeHoldingBreath / 1000 // Таймаут на время задержки дыхания в секундах
@@ -129,6 +131,7 @@ export const CountdownTimer = ({
 
 	return (
 		<Timer
+			otherText={otherText}
 			time={time}
 			remainingPathColor={remainingPathColor}
 			isHoldingBreath

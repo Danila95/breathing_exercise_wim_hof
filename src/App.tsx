@@ -22,6 +22,9 @@ import triangleSound from '@public/assets/triangle_sound_effect.mp3'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import Marina from '@public/assets/Marina.mp3'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import PrepareSound from '@public/assets/3_seconds_timer_start.mp3'
 import { startTimeoutHoldingBreath } from '@/components/startTimeoutHoldingBreath'
 
 function App() {
@@ -32,7 +35,8 @@ function App() {
 			: localStorage.setItem('speedBreath', '0.8')
 	) // Скорость дыхания
 	const audioRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
-	const triangleSoundEffectRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
+	const triangleSoundEffectRef = useRef<HTMLAudioElement | null>(null)
+	const PrepareSoundRef = useRef<HTMLAudioElement | null>(null)
 	const [countBreathes, setCountBreathes] = useState(0)
 	const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
 	const [holdingBreath, setHoldingBreath] = useState<boolean>(false)
@@ -82,7 +86,9 @@ function App() {
 	// Номер цикла по которому мы определяем на каком цикле мы находимся
 	const [numberCicle, setNumberCicle] = useState<number>(0)
 	const [sessionBreath, setSessionBreath] = useState<boolean>(false)
+	const [prepareStartBreath, setPrepareStartBreath] = useState<boolean>(true)
 	// Ссылки на все таймауты
+	const prepareStartBreathTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 	const triangleSoundEffectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 	const takingBreatheTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -90,6 +96,8 @@ function App() {
 
 	const resetAll = useCallback(() => {
 		// Очистка всех таймеров
+		if (prepareStartBreathTimeoutRef.current)
+			clearTimeout(prepareStartBreathTimeoutRef.current)
 		if (triangleSoundEffectTimeoutRef.current)
 			clearTimeout(triangleSoundEffectTimeoutRef.current)
 		if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -97,6 +105,7 @@ function App() {
 			clearTimeout(takingBreatheTimeoutRef.current)
 		if (breakTimeoutRef.current) clearTimeout(breakTimeoutRef.current)
 
+		prepareStartBreathTimeoutRef.current = null
 		triangleSoundEffectTimeoutRef.current = null
 		timeoutRef.current = null
 		takingBreatheTimeoutRef.current = null
@@ -112,11 +121,16 @@ function App() {
 		setIsTakingBreathe(false)
 		setIsPlaying(false)
 		setPause(true)
+		setPrepareStartBreath(true)
 
 		// Остановка аудио
 		if (audioRef.current) {
 			audioRef.current.pause()
 			audioRef.current.currentTime = 0
+		}
+		if (PrepareSoundRef.current) {
+			PrepareSoundRef.current.pause()
+			PrepareSoundRef.current.currentTime = 0
 		}
 	}, [])
 
@@ -225,6 +239,31 @@ function App() {
 		},
 		[isPlaying]
 	)
+
+	// Отсюда начинаем дыхательную тренировку
+	useEffect(() => {
+		if (sessionBreath && prepareStartBreath) {
+			if (prepareStartBreath) {
+				if (PrepareSoundRef.current) {
+					// Начинаем воспроизведение
+					if ('play' in PrepareSoundRef.current) {
+						PrepareSoundRef.current.play()
+					}
+				}
+				prepareStartBreathTimeoutRef.current = setTimeout(() => {
+					setPrepareStartBreath(!prepareStartBreath)
+					if (PrepareSoundRef.current) {
+						// Начинаем воспроизведение
+						if ('pause' in PrepareSoundRef.current) {
+							PrepareSoundRef.current.pause()
+						}
+					}
+					// eslint-disable-next-line no-use-before-define
+					handleStartBreathe()
+				}, 4000)
+			}
+		}
+	}, [handleStartBreathe, prepareStartBreath, sessionBreath])
 
 	const playTriangleSoundEffect = useCallback(() => {
 		// Очищаем предыдущий таймер
@@ -418,6 +457,9 @@ function App() {
 					justify='space-between'
 					align='center'
 				>
+					{sessionBreath && prepareStartBreath && (
+						<Title level={2}>Приготовьтесь к дыханию</Title>
+					)}
 					{sessionBreath && numberCicle === 1 && (
 						<Title level={2}>Первый подход</Title>
 					)}
@@ -429,6 +471,12 @@ function App() {
 					)}
 					{sessionBreath && numberCicle === 4 && (
 						<Title level={2}>Четвертый подход</Title>
+					)}
+					{sessionBreath && prepareStartBreath && (
+						<CountdownTimer
+							otherText='Начнем через'
+							timeHoldingBreath={Number('4000')}
+						/>
 					)}
 					{sessionBreath &&
 						holdingBreath &&
@@ -483,7 +531,6 @@ function App() {
 					<Button
 						onClick={() => {
 							setSessionBreath(!sessionBreath)
-							handleStartBreathe()
 						}}
 						icon={sessionBreath ? <PauseOutlined /> : <PlayCircleOutlined />}
 						size='large'
@@ -498,6 +545,12 @@ function App() {
 				</Flex>
 			</div>
 			{/* Аудиоплеер */}
+			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+			<audio
+				ref={PrepareSoundRef}
+				src={PrepareSound}
+				hidden
+			/>
 			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
 			<audio
 				ref={audioRef}
