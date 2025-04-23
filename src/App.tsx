@@ -15,7 +15,6 @@ import {
 import { CountdownTimer } from '@/components/UI/CountdownTimer'
 import { Counter } from '@/components/UI/Counter'
 import { SettingModal } from '@/components/UI/SettingModal'
-import Title from 'antd/es/typography/Title'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import triangleSound from '@public/assets/triangle_sound_effect.mp3'
@@ -26,17 +25,9 @@ import Marina from '@public/assets/Marina.mp3'
 // @ts-expect-error
 import PrepareSound from '@public/assets/3_seconds_timer_start.mp3'
 import { startTimeoutHoldingBreath } from '@/components/startTimeoutHoldingBreath'
-
-// Функция для разблокировки аудио
-const unlockAudio = async (audioElement: HTMLAudioElement) => {
-	try {
-		await audioElement.play()
-		audioElement.pause()
-		audioElement.currentTime = 0
-	} catch (e) {
-		console.error('Audio unlock failed:', e)
-	}
-}
+import { unlockAudio } from '@/components/unlockAudio'
+import { playAudio } from '@/components/playAudio'
+import { TitleBlock } from '@/components/TitleBlock'
 
 function App() {
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
@@ -186,14 +177,6 @@ function App() {
 	}, [countBreathes, isPlaying, sessionBreath, speedAudio])
 
 	useEffect(() => {
-		// Удаляем таймаут при остановке тренировки
-		if (!sessionBreath && timeoutRef.current) {
-			clearTimeout(timeoutRef.current)
-			timeoutRef.current = null
-		}
-	}, [sessionBreath])
-
-	useEffect(() => {
 		// Если кол-во вдохов === заданному кол-во, то останавливаем воспроизведение записи
 		if (
 			(countBreathes === (cicleBreath && cicleBreath[0]) && cicleOne) ||
@@ -224,40 +207,17 @@ function App() {
 		}
 	}, [speedAudio])
 
-	// Модифицированная функция воспроизведения звука
-	const playAudio = useCallback(
-		async (audioElement: HTMLAudioElement | null) => {
-			if (!audioElement) return
-
-			try {
-				audioElement.currentTime = 0
-				await audioElement.play()
-			} catch (e) {
-				console.error('Audio play failed:', e)
-				// Пытаемся разблокировать снова
-				if (!audioContextUnlocked) {
-					await unlockAudio(audioElement)
-					setAudioContextUnlocked(true)
-					await playAudio(audioElement)
-				}
-			}
-		},
-		[audioContextUnlocked]
-	)
-
 	// Функция для переключения между воспроизведением и паузой
-	// autoKey - автоматический ключ по воспроизведению записи в след. цикле
+	// autoKey - автоматический ключ по воспроизведению записи в следующем цикле
 	const handleStartBreathe = useCallback(
 		async (autoKey?: boolean) => {
 			setHoldingBreath(false)
 			if (!isPlaying || autoKey) {
-				// if (audioRef.current) {
-				// 	// Начинаем воспроизведение
-				// 	if ('play' in audioRef.current) {
-				// 		audioRef.current.play()
-				// 	}
-				// }
-				await playAudio(audioRef.current)
+				await playAudio(
+					audioRef.current,
+					audioContextUnlocked,
+					setAudioContextUnlocked
+				)
 				setIsPlaying(true)
 				setPause(false)
 			} else {
@@ -271,10 +231,9 @@ function App() {
 				setIsPlaying(false)
 			}
 		},
-		[isPlaying, playAudio]
+		[audioContextUnlocked, isPlaying]
 	)
 
-	// Отсюда начинаем дыхательную тренировку
 	useEffect(() => {
 		if (sessionBreath && prepareStartBreath) {
 			if (prepareStartBreath) {
@@ -299,7 +258,7 @@ function App() {
 		}
 	}, [handleStartBreathe, prepareStartBreath, sessionBreath])
 
-	// Модифицированная функция для старта тренировки
+	// Функция по старту тренировки
 	const handleStartSession = async () => {
 		if (!sessionBreath) {
 			// Разблокируем аудио контекст перед началом
@@ -325,16 +284,11 @@ function App() {
 			clearTimeout(triangleSoundEffectTimeoutRef.current)
 
 		if (sessionBreath) {
-			await playAudio(triangleSoundEffectRef.current)
-			// if ('play' in triangleSoundEffectRef.current) {
-			// 	// triangleSoundEffectRef.current.play()
-			//
-			// 	// Сбросить текущее время и попытаться воспроизвести
-			// 	triangleSoundEffectRef.current.currentTime = 0
-			// 	triangleSoundEffectRef.current
-			// 		.play()
-			// 		.catch(e => console.error('Play failed:', e))
-			// }
+			await playAudio(
+				triangleSoundEffectRef.current,
+				audioContextUnlocked,
+				setAudioContextUnlocked
+			)
 		}
 		triangleSoundEffectTimeoutRef.current = setTimeout(() => {
 			if (triangleSoundEffectRef.current) {
@@ -342,7 +296,7 @@ function App() {
 				triangleSoundEffectRef.current.currentTime = 0
 			}
 		}, 2500)
-	}, [playAudio, sessionBreath])
+	}, [audioContextUnlocked, sessionBreath])
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const takeBreakThreeSeconds = (
@@ -512,21 +466,11 @@ function App() {
 					justify='space-between'
 					align='center'
 				>
-					{sessionBreath && prepareStartBreath && (
-						<Title level={2}>Приготовьтесь к дыханию</Title>
-					)}
-					{sessionBreath && numberCicle === 1 && (
-						<Title level={2}>Первый подход</Title>
-					)}
-					{sessionBreath && numberCicle === 2 && (
-						<Title level={2}>Второй подход</Title>
-					)}
-					{sessionBreath && numberCicle === 3 && (
-						<Title level={2}>Третий подход</Title>
-					)}
-					{sessionBreath && numberCicle === 4 && (
-						<Title level={2}>Четвертый подход</Title>
-					)}
+					<TitleBlock
+						sessionBreath={sessionBreath}
+						prepareStartBreath={prepareStartBreath}
+						numberCicle={numberCicle}
+					/>
 					{sessionBreath && prepareStartBreath && (
 						<CountdownTimer
 							otherText='Начнем через'
