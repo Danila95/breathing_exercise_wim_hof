@@ -24,6 +24,9 @@ import Marina from '@public/assets/Marina.mp3'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import PrepareSound from '@public/assets/3_seconds_timer_start.mp3'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import MetronomSound from '@public/assets/metronom.mp3'
 import { startTimeoutHoldingBreath } from '@/components/startTimeoutHoldingBreath'
 import { unlockAudio } from '@/components/unlockAudio'
 import { playAudio } from '@/components/playAudio'
@@ -39,6 +42,7 @@ function App() {
 	const audioRef = useRef<HTMLAudioElement | null>(null) // Референс на аудиоплеер
 	const triangleSoundEffectRef = useRef<HTMLAudioElement | null>(null)
 	const PrepareSoundRef = useRef<HTMLAudioElement | null>(null)
+	const MetronomSoundRef = useRef<HTMLAudioElement | null>(null)
 	const [countBreathes, setCountBreathes] = useState(0)
 	const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
 	const [holdingBreath, setHoldingBreath] = useState<boolean>(false)
@@ -134,6 +138,10 @@ function App() {
 		if (PrepareSoundRef.current) {
 			PrepareSoundRef.current.pause()
 			PrepareSoundRef.current.currentTime = 0
+		}
+		if (MetronomSoundRef.current) {
+			MetronomSoundRef.current.pause()
+			MetronomSoundRef.current.currentTime = 0
 		}
 	}, [])
 
@@ -265,12 +273,14 @@ function App() {
 			if (
 				audioRef.current &&
 				triangleSoundEffectRef.current &&
-				PrepareSoundRef.current
+				PrepareSoundRef.current &&
+				MetronomSoundRef.current
 			) {
 				await Promise.all([
 					unlockAudio(audioRef.current),
 					unlockAudio(triangleSoundEffectRef.current),
-					unlockAudio(PrepareSoundRef.current)
+					unlockAudio(PrepareSoundRef.current),
+					unlockAudio(MetronomSoundRef.current)
 				])
 				setAudioContextUnlocked(true)
 			}
@@ -326,6 +336,11 @@ function App() {
 			playTriangleSoundEffect()
 			setIsTakingBreathe(true)
 
+			if (MetronomSoundRef.current) {
+				MetronomSoundRef.current.pause()
+				MetronomSoundRef.current.currentTime = 0
+			}
+
 			// Очищаем предыдущий таймер
 			if (takingBreatheTimeoutRef.current)
 				clearTimeout(takingBreatheTimeoutRef.current)
@@ -349,6 +364,13 @@ function App() {
 		// Очищаем предыдущий таймер, если он есть
 		if (timeoutRef.current) {
 			clearTimeout(timeoutRef.current)
+		}
+
+		if (MetronomSoundRef.current) {
+			// Начинаем воспроизведение
+			if ('play' in MetronomSoundRef.current) {
+				MetronomSoundRef.current.play()
+			}
 		}
 
 		timeoutRef.current = startTimeoutHoldingBreath(
@@ -558,6 +580,13 @@ function App() {
 			<audio
 				ref={triangleSoundEffectRef}
 				src={triangleSound}
+				hidden
+				preload='auto'
+			/>
+			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+			<audio
+				ref={MetronomSoundRef}
+				src={MetronomSound}
 				hidden
 				preload='auto'
 			/>
