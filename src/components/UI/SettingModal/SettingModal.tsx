@@ -9,7 +9,7 @@ import {
 	Typography
 } from 'antd'
 import dayjs from 'dayjs'
-import { createLogger } from 'vite'
+import { ShareAltOutlined } from '@ant-design/icons'
 
 interface ISettingModal {
 	onClose: () => void
@@ -52,6 +52,18 @@ export const SettingModal = (props: ISettingModal) => {
 			result.push(i)
 		}
 		return result
+	}
+
+	const onShare = async () => {
+		try {
+			await navigator.share({
+				title: 'Дыхательные упражнения',
+				text: 'Таймер для задержки дыхания по методу Вима Хофа',
+				url: 'https://dan-creator.ru/breathing/'
+			})
+		} catch (error) {
+			console.error('Ошибка при попытке поделиться:', error)
+		}
 	}
 
 	// Функция для отключения выбора минут больше 10
@@ -115,15 +127,6 @@ export const SettingModal = (props: ISettingModal) => {
 		return '40-40-40-40'
 	}
 
-	// const handlerSpeedDefaultAudio = (name: string) => {
-	// 	if (localStorage.getItem(name)) {
-	// 		console.log(localStorage.getItem(name))
-	//
-	// 		return setSpeedAudio(Number(localStorage.getItem(name)))
-	// 	}
-	// 	return 0.8
-	// }
-
 	return (
 		<Drawer
 			className=''
@@ -135,6 +138,9 @@ export const SettingModal = (props: ISettingModal) => {
 			footer={
 				<Flex justify='space-between'>
 					<Button onClick={onClose}>Закрыть</Button>
+					<Button onClick={onShare}>
+						Поделиться <ShareAltOutlined />
+					</Button>
 				</Flex>
 			}
 		>
