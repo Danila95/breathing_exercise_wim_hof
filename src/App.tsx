@@ -9,7 +9,6 @@ import React, {
 import { Button, Flex } from 'antd'
 import {
 	PlayCircleOutlined,
-	PauseOutlined,
 	SettingOutlined
 } from '@ant-design/icons'
 import { CountdownTimer } from '@/components/UI/CountdownTimer'
@@ -31,6 +30,12 @@ import { startTimeoutHoldingBreath } from '@/components/startTimeoutHoldingBreat
 import { unlockAudio } from '@/components/unlockAudio'
 import { playAudio } from '@/components/playAudio'
 import { TitleBlock } from '@/components/TitleBlock'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import Stop from '@public/assets/Stop.svg'
+import NoSleep from '@zakj/no-sleep'
+// scss classes
+import './App.css'
 
 function App() {
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
@@ -84,6 +89,16 @@ function App() {
 			? Number(localStorage.getItem('fourTimeBreathHolding'))
 			: localStorage.setItem('fourTimeBreathHolding', '30000')
 	)
+	const [backgroundSound, setBackgroundSound] = useState<boolean | void>(() => {
+		const value = localStorage.getItem('backgroundSound')
+
+		if (value === null) {
+			localStorage.setItem('backgroundSound', 'false')
+			return false
+		}
+
+		return value === 'true'
+	});
 
 	const [cicleOne, setCicleOne] = useState<boolean>(false)
 	const [cicleTwo, setCicleTwo] = useState<boolean>(false)
@@ -158,6 +173,18 @@ function App() {
 	const closeSettingModal = () => {
 		setIsOpenModal(false)
 	}
+
+	const noSleep = useRef(new NoSleep())
+
+	useEffect(() => {
+		if (sessionBreath) {
+			// console.log('enable')
+			noSleep.current.enable()
+		} else {
+			// console.log('disable')
+			noSleep.current.disable()
+		}
+	}, [sessionBreath])
 
 	useEffect(() => {
 		let intervalId: ReturnType<typeof setInterval>
@@ -276,12 +303,20 @@ function App() {
 				PrepareSoundRef.current &&
 				MetronomSoundRef.current
 			) {
-				await Promise.all([
-					unlockAudio(audioRef.current),
-					unlockAudio(triangleSoundEffectRef.current),
-					unlockAudio(PrepareSoundRef.current),
-					unlockAudio(MetronomSoundRef.current)
-				])
+				if (backgroundSound) {
+					await Promise.all([
+						unlockAudio(audioRef.current),
+						unlockAudio(triangleSoundEffectRef.current),
+						unlockAudio(PrepareSoundRef.current),
+						unlockAudio(MetronomSoundRef.current)
+					])
+				} else {
+					await Promise.all([
+						unlockAudio(audioRef.current),
+						unlockAudio(triangleSoundEffectRef.current),
+						unlockAudio(PrepareSoundRef.current)
+					])
+				}
 				setAudioContextUnlocked(true)
 			}
 		}
@@ -366,10 +401,12 @@ function App() {
 			clearTimeout(timeoutRef.current)
 		}
 
-		if (MetronomSoundRef.current) {
-			// Начинаем воспроизведение
-			if ('play' in MetronomSoundRef.current) {
-				MetronomSoundRef.current.play()
+		if (backgroundSound) {
+			if (MetronomSoundRef.current) {
+				// Начинаем воспроизведение
+				if ('play' in MetronomSoundRef.current) {
+					MetronomSoundRef.current.play()
+				}
 			}
 		}
 
@@ -474,6 +511,8 @@ function App() {
 				setTwoTimeBreathHolding={setTwoTimeBreathHolding}
 				setThreeTimeBreathHolding={setThreeTimeBreathHolding}
 				setFourTimeBreathHolding={setFourTimeBreathHolding}
+				backgroundSound={backgroundSound}
+				setBackgroundSound={setBackgroundSound}
 			/>
 			<div
 				style={{
@@ -551,7 +590,7 @@ function App() {
 					)}
 					<Button
 						onClick={handleStartSession}
-						icon={sessionBreath ? <PauseOutlined /> : <PlayCircleOutlined />}
+						icon={sessionBreath ? <Stop /> : <PlayCircleOutlined />}
 						size='large'
 						iconPosition='end'
 						style={{

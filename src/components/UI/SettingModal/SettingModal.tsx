@@ -1,5 +1,6 @@
 import {
-	Button,
+	Button, Checkbox,
+	CheckboxChangeEvent,
 	DatePicker,
 	Drawer,
 	Flex,
@@ -9,7 +10,8 @@ import {
 	Typography
 } from 'antd'
 import dayjs from 'dayjs'
-import { ShareAltOutlined } from '@ant-design/icons'
+import {ShareAltOutlined} from '@ant-design/icons'
+import {log} from "node:util";
 
 interface ISettingModal {
 	onClose: () => void
@@ -21,6 +23,8 @@ interface ISettingModal {
 	setTwoTimeBreathHolding: React.Dispatch<React.SetStateAction<number | void>>
 	setThreeTimeBreathHolding: React.Dispatch<React.SetStateAction<number | void>>
 	setFourTimeBreathHolding: React.Dispatch<React.SetStateAction<number | void>>
+	backgroundSound: boolean | void
+	setBackgroundSound: React.Dispatch<React.SetStateAction<boolean | void>>
 }
 
 export const SettingModal = (props: ISettingModal) => {
@@ -33,9 +37,11 @@ export const SettingModal = (props: ISettingModal) => {
 		setOneTimeBreathHolding,
 		setTwoTimeBreathHolding,
 		setThreeTimeBreathHolding,
-		setFourTimeBreathHolding
+		setFourTimeBreathHolding,
+		backgroundSound,
+		setBackgroundSound
 	} = props
-
+	// console.log(backgroundSound)
 	const handleSpeedAudio = (newValue: any) => {
 		setSpeedAudio(newValue)
 		localStorage.setItem('speedBreath', newValue)
@@ -59,7 +65,7 @@ export const SettingModal = (props: ISettingModal) => {
 			await navigator.share({
 				title: 'Дыхательные упражнения',
 				text: 'Таймер для задержки дыхания по методу Вима Хофа',
-				url: 'https://dan-creator.ru/breathing/'
+				url: 'https://dan-creator.ru/projects/breathe'
 			})
 		} catch (error) {
 			console.error('Ошибка при попытке поделиться:', error)
@@ -125,6 +131,11 @@ export const SettingModal = (props: ISettingModal) => {
 		}
 
 		return '40-40-40-40'
+	}
+
+	const onChangeSound = (e: CheckboxChangeEvent) => {
+		setBackgroundSound(e.target.checked)
+		localStorage.setItem('backgroundSound', String(e.target.checked))
 	}
 
 	return (
@@ -194,6 +205,10 @@ export const SettingModal = (props: ISettingModal) => {
 							{
 								value: '40-40-40-40',
 								label: '40-40-40-40'
+							},
+							{
+								value: '50-50-50-50',
+								label: '50-50-50-50'
 							},
 							{
 								value: '40-50-60-70',
@@ -301,6 +316,17 @@ export const SettingModal = (props: ISettingModal) => {
 							handleTimeChangeBreathHolding(time, 'fourTimeBreathHolding')
 						}
 					/>
+				</Flex>
+				<Flex
+					vertical
+					gap={5}
+				>
+					<Checkbox
+						checked={Boolean(backgroundSound)}
+						onChange={(e) => onChangeSound(e)}
+					>
+						Включить на задержке звуковое сопровождение.
+					</Checkbox>
 				</Flex>
 			</Flex>
 		</Drawer>
