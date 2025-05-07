@@ -3,7 +3,16 @@
   position: relative;
   height: 300px;
   width: 300px;
-  margin-bottom: 20px;
+
+  border-radius: 50%;
+  margin: 0 auto 30px auto;
+  animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 /* Removes SVG styling that would hide the time label */
@@ -35,6 +44,11 @@
   flex-direction: column;
   /* Sort of an arbitrary number; adjust to your liking */
   font-size: 48px;
+
+  background-color: white;
+  z-index: -1;
+  border-radius: 50%;
+  box-shadow: 0 10px 30px rgba(88, 191, 160, 0.2);
 }
 
 .baseTimer__labelSubtitle {

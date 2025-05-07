@@ -7,10 +7,7 @@ import React, {
 	useState
 } from 'react'
 import { Button, Flex } from 'antd'
-import {
-	PlayCircleOutlined,
-	SettingOutlined
-} from '@ant-design/icons'
+import { PlayCircleOutlined, SettingOutlined } from '@ant-design/icons'
 import { CountdownTimer } from '@/components/UI/CountdownTimer'
 import { Counter } from '@/components/UI/Counter'
 import { SettingModal } from '@/components/UI/SettingModal'
@@ -98,7 +95,7 @@ function App() {
 		}
 
 		return value === 'true'
-	});
+	})
 
 	const [cicleOne, setCicleOne] = useState<boolean>(false)
 	const [cicleTwo, setCicleTwo] = useState<boolean>(false)
@@ -589,6 +586,7 @@ function App() {
 						/>
 					)}
 					<Button
+						className='btn'
 						onClick={handleStartSession}
 						icon={sessionBreath ? <Stop /> : <PlayCircleOutlined />}
 						size='large'
