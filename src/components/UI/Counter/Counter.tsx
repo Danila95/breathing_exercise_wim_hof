@@ -10,13 +10,15 @@ interface ICounter {
 	countBreathes: number
 	maxBreathes: number
 	speedAudio: number
+	isPulsing: boolean
 }
 
 export const Counter = ({
 	className,
 	countBreathes,
 	maxBreathes,
-	speedAudio
+	speedAudio,
+	isPulsing
 }: ICounter) => {
 	const FULL_DASH_ARRAY = 283
 	const WARNING_THRESHOLD = 10
@@ -110,12 +112,17 @@ export const Counter = ({
 		countBreathes
 	])
 
+	const pulseStyle = isPulsing
+		? { animation: `pulse ${(1000 / Number(speedAudio)) * 2.45}ms infinite` }
+		: {}
+
 	return (
 		<>
 			<Timer
 				time={String(countBreathes)}
 				remainingPathColor={remainingPathColor}
 				isCounter
+				pulseStyle={pulseStyle}
 			/>
 		</>
 	)

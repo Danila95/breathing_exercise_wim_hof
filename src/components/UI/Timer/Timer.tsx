@@ -11,6 +11,7 @@ interface ITimer {
 	isCounter?: boolean
 	isHoldingBreath?: boolean
 	isTakingBreathe?: boolean | undefined
+	pulseStyle?: object
 }
 
 export const Timer = ({
@@ -20,10 +21,14 @@ export const Timer = ({
 	time,
 	isCounter,
 	isHoldingBreath,
-	isTakingBreathe
+	isTakingBreathe,
+	pulseStyle
 }: ITimer) => {
 	return (
-		<div className={cls.baseTimer}>
+		<div
+			className={cls.baseTimer}
+			style={pulseStyle}
+		>
 			<svg
 				className={cls.baseTimer__svg}
 				viewBox='0 0 100 100'

@@ -488,145 +488,155 @@ function App() {
 	])
 
 	return (
-		<div style={{ margin: '50px' }}>
-			{!sessionBreath && (
-				<Button
-					type='link'
-					onClick={() => openSettingModal()}
-					icon={<SettingOutlined />}
-				>
-					Настройки
-				</Button>
-			)}
-			<SettingModal
-				isOpenModal={isOpenModal}
-				onClose={() => closeSettingModal()}
-				speedAudio={speedAudio}
-				setSpeedAudio={setSpeedAudio}
-				setCicleBreath={setCicleBreath}
-				setOneTimeBreathHolding={setOneTimeBreathHolding}
-				setTwoTimeBreathHolding={setTwoTimeBreathHolding}
-				setThreeTimeBreathHolding={setThreeTimeBreathHolding}
-				setFourTimeBreathHolding={setFourTimeBreathHolding}
-				backgroundSound={backgroundSound}
-				setBackgroundSound={setBackgroundSound}
-			/>
-			<div
-				style={{
-					margin: '50px',
-					display: 'flex',
-					flexDirection: 'column',
-					justifyContent: 'center'
-				}}
-			>
-				<Flex
-					vertical
-					justify='space-between'
-					align='center'
-				>
-					<TitleBlock
-						sessionBreath={sessionBreath}
-						prepareStartBreath={prepareStartBreath}
-						numberCicle={numberCicle}
-					/>
-					{sessionBreath && prepareStartBreath && (
-						<CountdownTimer
-							otherText='Начнем через'
-							timeHoldingBreath={Number('4000')}
-						/>
-					)}
-					{sessionBreath &&
-						holdingBreath &&
-						!isTakingBreathe &&
-						numberCicle === 1 && (
-							<CountdownTimer
-								timeHoldingBreath={Number(oneTimeBreathHolding)}
-							/>
-						)}
-					{sessionBreath &&
-						holdingBreath &&
-						!isTakingBreathe &&
-						numberCicle === 2 && (
-							<CountdownTimer
-								timeHoldingBreath={Number(twoTimeBreathHolding)}
-							/>
-						)}
-					{sessionBreath &&
-						holdingBreath &&
-						!isTakingBreathe &&
-						numberCicle === 3 && (
-							<CountdownTimer
-								timeHoldingBreath={Number(threeTimeBreathHolding)}
-							/>
-						)}
-					{sessionBreath &&
-						holdingBreath &&
-						!isTakingBreathe &&
-						numberCicle === 4 && (
-							<CountdownTimer
-								timeHoldingBreath={Number(fourTimeBreathHolding)}
-							/>
-						)}
-					{sessionBreath &&
-						countBreathes >= 0 &&
-						!holdingBreath &&
-						isPlaying && (
-							<Counter
-								countBreathes={countBreathes}
-								// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-								// @ts-expect-error
-								maxBreathes={Number(cicleBreath[numberCicle])}
-								speedAudio={speedAudio}
-							/>
-						)}
-					{sessionBreath && isTakingBreathe && (
-						<CountdownTimer
-							timeHoldingBreath={Number(takingBreatheTime)}
-							isTakingBreathe
-						/>
-					)}
+		<div className='wrapper'>
+			<div className='btns'>
+				{!sessionBreath && (
 					<Button
 						className='btn'
-						onClick={handleStartSession}
-						icon={sessionBreath ? <Stop /> : <PlayCircleOutlined />}
-						size='large'
-						iconPosition='end'
+						type='link'
+						onClick={() => openSettingModal()}
+						icon={<SettingOutlined />}
 						style={{
-							padding: '25px',
-							marginBottom: '30px'
+							padding: '25px'
 						}}
 					>
-						{sessionBreath ? 'Остановить тренировку' : 'Начать тренировку'}
+						Настройки
 					</Button>
-				</Flex>
+				)}
 			</div>
-			{/* Аудиоплеер */}
-			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-			<audio
-				ref={PrepareSoundRef}
-				src={PrepareSound}
-				hidden
-			/>
-			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-			<audio
-				ref={audioRef}
-				src={Marina}
-				hidden
-			/>
-			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-			<audio
-				ref={triangleSoundEffectRef}
-				src={triangleSound}
-				hidden
-				preload='auto'
-			/>
-			{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-			<audio
-				ref={MetronomSoundRef}
-				src={MetronomSound}
-				hidden
-				preload='auto'
-			/>
+			<div className='container'>
+				<div style={{ margin: '50px' }}>
+					<SettingModal
+						isOpenModal={isOpenModal}
+						onClose={() => closeSettingModal()}
+						speedAudio={speedAudio}
+						setSpeedAudio={setSpeedAudio}
+						setCicleBreath={setCicleBreath}
+						setOneTimeBreathHolding={setOneTimeBreathHolding}
+						setTwoTimeBreathHolding={setTwoTimeBreathHolding}
+						setThreeTimeBreathHolding={setThreeTimeBreathHolding}
+						setFourTimeBreathHolding={setFourTimeBreathHolding}
+						backgroundSound={backgroundSound}
+						setBackgroundSound={setBackgroundSound}
+					/>
+					<div
+						style={{
+							margin: '50px',
+							display: 'flex',
+							flexDirection: 'column',
+							justifyContent: 'center'
+						}}
+					>
+						<Flex
+							vertical
+							justify='space-between'
+							align='center'
+						>
+							<TitleBlock
+								sessionBreath={sessionBreath}
+								prepareStartBreath={prepareStartBreath}
+								numberCicle={numberCicle}
+							/>
+							{sessionBreath && prepareStartBreath && (
+								<CountdownTimer
+									otherText='Начнем через'
+									timeHoldingBreath={Number('4000')}
+								/>
+							)}
+							{sessionBreath &&
+								holdingBreath &&
+								!isTakingBreathe &&
+								numberCicle === 1 && (
+									<CountdownTimer
+										timeHoldingBreath={Number(oneTimeBreathHolding)}
+									/>
+								)}
+							{sessionBreath &&
+								holdingBreath &&
+								!isTakingBreathe &&
+								numberCicle === 2 && (
+									<CountdownTimer
+										timeHoldingBreath={Number(twoTimeBreathHolding)}
+									/>
+								)}
+							{sessionBreath &&
+								holdingBreath &&
+								!isTakingBreathe &&
+								numberCicle === 3 && (
+									<CountdownTimer
+										timeHoldingBreath={Number(threeTimeBreathHolding)}
+									/>
+								)}
+							{sessionBreath &&
+								holdingBreath &&
+								!isTakingBreathe &&
+								numberCicle === 4 && (
+									<CountdownTimer
+										timeHoldingBreath={Number(fourTimeBreathHolding)}
+									/>
+								)}
+							{sessionBreath &&
+								countBreathes >= 0 &&
+								!holdingBreath &&
+								isPlaying && (
+									<Counter
+										countBreathes={countBreathes}
+										// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+										// @ts-expect-error
+										maxBreathes={Number(cicleBreath[numberCicle])}
+										speedAudio={speedAudio}
+										isPulsing
+									/>
+								)}
+							{sessionBreath && isTakingBreathe && (
+								<CountdownTimer
+									timeHoldingBreath={Number(takingBreatheTime)}
+									isTakingBreathe
+								/>
+							)}
+							<Button
+								className='btn'
+								onClick={handleStartSession}
+								icon={sessionBreath ? <Stop /> : <PlayCircleOutlined />}
+								size='large'
+								style={{
+									padding: '25px',
+									marginBottom: '30px'
+								}}
+							>
+								{sessionBreath ? 'Остановить тренировку' : 'Начать тренировку'}
+							</Button>
+						</Flex>
+					</div>
+					{/* Аудиоплеер */}
+					{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+					<audio
+						ref={PrepareSoundRef}
+						src={PrepareSound}
+						hidden
+					/>
+					{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+					<audio
+						ref={audioRef}
+						src={Marina}
+						hidden
+					/>
+					{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+					<audio
+						ref={triangleSoundEffectRef}
+						src={triangleSound}
+						hidden
+						preload='auto'
+					/>
+					{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+					<audio
+						ref={MetronomSoundRef}
+						src={MetronomSound}
+						hidden
+						preload='auto'
+					/>
+				</div>
+			</div>
 		</div>
 	)
 }
