@@ -1,5 +1,6 @@
 import {
-	Button, Checkbox,
+	Button,
+	Checkbox,
 	CheckboxChangeEvent,
 	DatePicker,
 	Drawer,
@@ -10,8 +11,7 @@ import {
 	Typography
 } from 'antd'
 import dayjs from 'dayjs'
-import {ShareAltOutlined} from '@ant-design/icons'
-import {log} from "node:util";
+import { ShareAltOutlined } from '@ant-design/icons'
 
 interface ISettingModal {
 	onClose: () => void
@@ -190,10 +190,10 @@ export const SettingModal = (props: ISettingModal) => {
 						defaultValue={handlerDefaultCicleBreath('cicleBreath')}
 						onChange={handleCicleBreath}
 						options={[
-							{
-								value: '5-5-5-5',
-								label: '5-5-5-5'
-							},
+							// {
+							// 	value: '5-5-5-5',
+							// 	label: '5-5-5-5'
+							// },
 							{
 								value: '30-30-30',
 								label: '30-30-30'
@@ -323,7 +323,7 @@ export const SettingModal = (props: ISettingModal) => {
 				>
 					<Checkbox
 						checked={Boolean(backgroundSound)}
-						onChange={(e) => onChangeSound(e)}
+						onChange={e => onChangeSound(e)}
 					>
 						Включить на задержке звуковое сопровождение.
 					</Checkbox>
