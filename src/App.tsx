@@ -31,10 +31,12 @@ import { TitleBlock } from '@/components/TitleBlock'
 // @ts-expect-error
 import Stop from '@public/assets/Stop.svg'
 import NoSleep from '@zakj/no-sleep'
+import { usePwaUpdater } from '@/hooks/usePwaUpdater'
 // scss classes
 import './App.css'
 
 function App() {
+	const { updateAvailable, update } = usePwaUpdater()
 	const [isPlaying, setIsPlaying] = useState(false) // Состояние для отслеживания воспроизведения
 	const [speedAudio, setSpeedAudio] = useState<number | any | void>(
 		localStorage.getItem('speedBreath')
@@ -233,7 +235,7 @@ function App() {
 
 	useEffect(() => {
 		if (audioRef.current) {
-			if ('playbackRate' in audioRef.current) {
+			if ('playbackRate' in audioRef.current && Number.isFinite(speedAudio)) {
 				audioRef.current.playbackRate = speedAudio
 			}
 		}
@@ -489,6 +491,29 @@ function App() {
 
 	return (
 		<div className='wrapper'>
+			{/* Уведомление об обновлении */}
+			{updateAvailable && (
+				<div
+					style={{
+						position: 'fixed',
+						bottom: 20,
+						right: 20,
+						background: '#222',
+						color: '#fff',
+						padding: '1rem',
+						borderRadius: '8px'
+					}}
+				>
+					Новая версия доступна.
+					<Button
+						className='btn'
+						type='link'
+						onClick={update}
+					>
+						Обновить
+					</Button>
+				</div>
+			)}
 			<div className='btns'>
 				{!sessionBreath && (
 					<Button
